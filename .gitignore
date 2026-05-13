@@ -1,0 +1,55 @@
+## --- РЕЗУЛЬТАТЫ СБОРКИ (Build outputs) ---
+[Bb]in/
+[Oo]bj/
+[Ex]ecutable/
+[Mm]odules/
+_ReSharper*/
+[Th]umbs.db
+*.pdb
+*.log
+
+## --- НАСТРОЙКИ СРЕДЫ РАЗРАБОТКИ (IDE) ---
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# JetBrains Rider / IntelliJ
+.idea/
+*.sln.iml
+
+# Visual Studio Code
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+## --- КОНФИДЕНЦИАЛЬНЫЕ ДАННЫЕ (Secrets & Configs) ---
+# Локальные файлы конфигурации среды (содержат пароли и токены)
+appsettings.Development.json
+appsettings.Local.json
+*.secrets.json
+
+# Секреты Docker / Контейнеры
+.env
+.env.*
+!.env.example
+
+## --- ПАКЕТЫ И СРЕДСТВА РАЗРАБОТКИ ---
+# NuGet-пакеты (восстанавливаются автоматически)
+*.nuget.props
+*.nuget.targets
+packages/
+
+# Инструменты миграций Entity Framework Core
+*.efmigrations.txt
+
+## --- СИСТЕМНЫЕ ФАЙЛЫ ---
+.DS_Store
+.DS_Store?
+ehthumbs.db
+Icon?

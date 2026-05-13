@@ -1,0 +1,6 @@
+@WITnetwork_HostAddress = http://localhost:5028
+
+GET {{WITnetwork_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

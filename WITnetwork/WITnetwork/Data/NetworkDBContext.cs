@@ -1,0 +1,13 @@
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
+using WITnetwork.Models;
+
+namespace WITnetwork.Data;
+
+public class NetworkDBContext(DbContextOptions<NetworkDBContext> options): IdentityDbContext<User,IdentityRole<Guid>, Guid> (options)
+{
+    public DbSet<Post> Posts { get; set; }
+    public DbSet<Tag> Tags { get; set; }
+    public DbSet<Image> Images { get; set; }
+}
