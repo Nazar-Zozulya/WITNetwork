@@ -124,3 +124,4 @@ C:\ASP.NET Core\WITnetwork\WITnetwork\WITnetwork\bin\Debug\net10.0\Microsoft.Asp
 C:\ASP.NET Core\WITnetwork\WITnetwork\WITnetwork\bin\Debug\net10.0\Swashbuckle.AspNetCore.Swagger.dll
 C:\ASP.NET Core\WITnetwork\WITnetwork\WITnetwork\bin\Debug\net10.0\Swashbuckle.AspNetCore.SwaggerGen.dll
 C:\ASP.NET Core\WITnetwork\WITnetwork\WITnetwork\bin\Debug\net10.0\Swashbuckle.AspNetCore.SwaggerUI.dll
+C:\ASP.NET Core\WITnetwork\WITnetwork\WITnetwork\obj\Debug\net10.0\WITnetwork.sourcelink.json

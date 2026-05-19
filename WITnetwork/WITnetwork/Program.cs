@@ -16,7 +16,7 @@ builder.Services.AddDbContext<NetworkDBContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
 );
 
-builder.Services.AddIdentity<User, IdentityRole<Guid>>(options =>
+builder.Services.AddIdentity<UserProfile, IdentityRole<Guid>>(options =>
 {
     options.Password.RequireDigit = false;
     options.Password.RequireLowercase = false;
@@ -41,9 +41,9 @@ app.UseHttpsRedirection();
 
 app.MapControllers();
 
-app.MapPost("/create-user", async (UserManager<User> UserManager) =>
+app.MapPost("/create-user", async (UserManager<UserProfile> UserManager) =>
 {
-   var user = new User
+   var user = new UserProfile
    {
         UserName = "admin_test",
         Email = "admin_test@example.com",

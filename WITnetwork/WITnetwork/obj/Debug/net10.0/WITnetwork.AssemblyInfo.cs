@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("WITnetwork")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+70655b13030dba7548942e6d24a3ff88045de814")]
 [assembly: System.Reflection.AssemblyProductAttribute("WITnetwork")]
 [assembly: System.Reflection.AssemblyTitleAttribute("WITnetwork")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

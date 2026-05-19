@@ -2,14 +2,22 @@ using Microsoft.AspNetCore.Identity;
 
 namespace WITnetwork.Models;
 
-public class User: IdentityUser<Guid>
+public class UserProfile: IdentityUser<Guid>
 {
     public string FirstName { get; set; } = string.Empty;
     public string LastName { get; set; } = string.Empty;
 
-    public DateTime? BirthOfDate { get; set; }
+    public DateTime? BirthDate { get; set; }
 
-    public string? signature { get; set; }
+    public string? Pseudonym { get; set; }
+
+    public string? Signature { get; set; }
+
+    public bool? IsImageSignature { get; set; }
+
+    public bool? IsTextSignature { get; set; }
+
+    public string? Avatar { get; set; }
 
     public ICollection<Post> Posts { get; set; } = new List<Post>();
 
