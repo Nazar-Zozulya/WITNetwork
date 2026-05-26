@@ -17,9 +17,11 @@ public class PostService(NetworkDBContext context, IMapper mapper) : IPostServic
         return mapper.Map<IEnumerable<PostResponseDto>>(posts);
     }
 
-    public async Task<PostResponseDto> CreatePostAsync(CreatePostDto dto)
+    public async Task<PostResponseDto> CreatePostAsync(CreatePostDto dto, string authorId)
     {
         var post = mapper.Map<Post>(dto);
+
+        post.AuthorId = Convert.ToInt32(authorId);
 
         context.Posts.Add(post);
         await context.SaveChangesAsync();

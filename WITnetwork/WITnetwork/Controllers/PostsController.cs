@@ -1,4 +1,6 @@
 
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
@@ -12,9 +14,19 @@ public class PostController(IPostService postService) : ControllerBase
 
         return Ok(posts);
     }
+
+    [Authorize]
     public async Task<IActionResult> Create([FromBody] CreatePostDto dto)
     {
-        var createPost = await postService.CreatePostAsync(dto);
+
+        var authorId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (authorId == null)
+        {
+            return BadRequest("unauthorized");
+        }
+
+        var createPost = await postService.CreatePostAsync(dto, authorId);
         return Ok(createPost);
     }
 }
