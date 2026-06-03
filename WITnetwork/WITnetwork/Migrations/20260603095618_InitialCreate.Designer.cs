@@ -12,15 +12,15 @@ using WITnetwork.Data;
 namespace WITnetwork.Migrations
 {
     [DbContext(typeof(NetworkDBContext))]
-    [Migration("20260513133518_NewUserModal")]
-    partial class NewUserModal
+    [Migration("20260603095618_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.8")
+                .HasAnnotation("ProductVersion", "8.0.8")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -207,22 +207,28 @@ namespace WITnetwork.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<int>("AuthorId")
-                        .HasColumnType("integer");
-
-                    b.Property<Guid>("AuthorId1")
+                    b.Property<Guid>("AuthorId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("Content")
                         .HasColumnType("text");
 
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("Topic")
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("AuthorId1");
+                    b.HasIndex("AuthorId");
 
                     b.ToTable("Posts");
                 });
@@ -242,7 +248,7 @@ namespace WITnetwork.Migrations
                     b.ToTable("Tags");
                 });
 
-            modelBuilder.Entity("WITnetwork.Models.User", b =>
+            modelBuilder.Entity("WITnetwork.Models.UserProfile", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -251,7 +257,10 @@ namespace WITnetwork.Migrations
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("integer");
 
-                    b.Property<DateTime?>("BirthOfDate")
+                    b.Property<string>("Avatar")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("BirthDate")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("ConcurrencyStamp")
@@ -268,6 +277,12 @@ namespace WITnetwork.Migrations
                     b.Property<string>("FirstName")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<bool?>("IsImageSignature")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool?>("IsTextSignature")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("LastName")
                         .IsRequired()
@@ -296,7 +311,13 @@ namespace WITnetwork.Migrations
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("Pseudonym")
+                        .HasColumnType("text");
+
                     b.Property<string>("SecurityStamp")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Signature")
                         .HasColumnType("text");
 
                     b.Property<bool>("TwoFactorEnabled")
@@ -305,9 +326,6 @@ namespace WITnetwork.Migrations
                     b.Property<string>("UserName")
                         .HasMaxLength(256)
                         .HasColumnType("character varying(256)");
-
-                    b.Property<string>("signature")
-                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -332,7 +350,7 @@ namespace WITnetwork.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<System.Guid>", b =>
                 {
-                    b.HasOne("WITnetwork.Models.User", null)
+                    b.HasOne("WITnetwork.Models.UserProfile", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -341,7 +359,7 @@ namespace WITnetwork.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<System.Guid>", b =>
                 {
-                    b.HasOne("WITnetwork.Models.User", null)
+                    b.HasOne("WITnetwork.Models.UserProfile", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -356,7 +374,7 @@ namespace WITnetwork.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("WITnetwork.Models.User", null)
+                    b.HasOne("WITnetwork.Models.UserProfile", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -365,7 +383,7 @@ namespace WITnetwork.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<System.Guid>", b =>
                 {
-                    b.HasOne("WITnetwork.Models.User", null)
+                    b.HasOne("WITnetwork.Models.UserProfile", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -396,9 +414,9 @@ namespace WITnetwork.Migrations
 
             modelBuilder.Entity("WITnetwork.Models.Post", b =>
                 {
-                    b.HasOne("WITnetwork.Models.User", "Author")
+                    b.HasOne("WITnetwork.Models.UserProfile", "Author")
                         .WithMany("Posts")
-                        .HasForeignKey("AuthorId1")
+                        .HasForeignKey("AuthorId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -410,7 +428,7 @@ namespace WITnetwork.Migrations
                     b.Navigation("Image");
                 });
 
-            modelBuilder.Entity("WITnetwork.Models.User", b =>
+            modelBuilder.Entity("WITnetwork.Models.UserProfile", b =>
                 {
                     b.Navigation("Posts");
                 });

@@ -19,10 +19,10 @@ public class AuthService(NetworkDBContext context, IMapper mapper) : IAuthServic
     {
         var NewUser = new UserProfile{
             Email = dto.Email,
-            PasswordHash = dto.Password,
+            // PasswordHash = dto.Password,
         };
 
-        var result = await UserManager.CreateAsync(NewUser);
+        var result = await UserManager.CreateAsync(NewUser, dto.Password);
         return result;
     }
 
@@ -34,7 +34,7 @@ public class AuthService(NetworkDBContext context, IMapper mapper) : IAuthServic
             return null;
         }
 
-        if (findUser.PasswordHash != dto.Password)
+        if (await UserManager.CheckPasswordAsync(findUser, dto.Password))
         {
             return null;
         }
@@ -42,9 +42,9 @@ public class AuthService(NetworkDBContext context, IMapper mapper) : IAuthServic
         var token = new JwtSecurityToken(
             issuer: "AuthServer",     
             audience: "BackendApi",
-            claims: new[] { new Claim("sub", findUser.Id.ToString()) },
-            expires: DateTime.UtcNow.AddHours(2),
-            signingCredentials: new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes("12345789012345789012345789012!")), SecurityAlgorithms.HmacSha256) // Подпись
+            claims: new[] { new Claim(ClaimTypes.NameIdentifier, findUser.Id.ToString()) },
+            expires: DateTime.UtcNow.AddYears(2),
+            signingCredentials: new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes("12345789012345789012345789012")), SecurityAlgorithms.HmacSha256) // Подпись
         );
 
         return new JwtSecurityTokenHandler().WriteToken(token);

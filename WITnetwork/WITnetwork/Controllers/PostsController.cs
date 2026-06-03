@@ -7,14 +7,15 @@ using Microsoft.AspNetCore.Mvc;
 [Route("api/[controller]")]
 public class PostController(IPostService postService) : ControllerBase
 {
-    [HttpGet]
+    [HttpGet("get-all")]
     public async Task <IActionResult> GetAll()
     {
-        var posts = postService.GetAllPostsAsync();
+        var posts = await postService.GetAllPostsAsync();
 
         return Ok(posts);
     }
 
+    [HttpPost("create")]
     [Authorize]
     public async Task<IActionResult> Create([FromBody] CreatePostDto dto)
     {

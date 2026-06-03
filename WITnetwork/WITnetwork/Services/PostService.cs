@@ -21,7 +21,7 @@ public class PostService(NetworkDBContext context, IMapper mapper) : IPostServic
     {
         var post = mapper.Map<Post>(dto);
 
-        post.AuthorId = Convert.ToInt32(authorId);
+        post.AuthorId = Guid.Parse(authorId);
 
         context.Posts.Add(post);
         await context.SaveChangesAsync();

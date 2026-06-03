@@ -17,7 +17,7 @@ public class Post
 
     public string? Topic { get; set; }
 
-    public int AuthorId { get; set; }
+    public Guid AuthorId { get; set; }
 
     public ICollection<Tag> Tags { get; set; } = new List<Tag>();
 
