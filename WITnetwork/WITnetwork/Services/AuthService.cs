@@ -19,34 +19,48 @@ public class AuthService(NetworkDBContext context, IMapper mapper) : IAuthServic
     {
         var NewUser = new UserProfile{
             Email = dto.Email,
-            // PasswordHash = dto.Password,
+            UserName = $"user_{Guid.NewGuid()}",
+            PasswordHash = dto.Password,
         };
 
         var result = await UserManager.CreateAsync(NewUser, dto.Password);
         return result;
     }
 
-    public async Task<string?> Login(LoginDto dto, UserManager<UserProfile> UserManager)
+    public async Task<string?> Login(LoginDto dto, UserManager<UserProfile> UserManager, UserProfile user)
     {
         var findUser = await context.Users.FirstOrDefaultAsync(user => user.Email == dto.Email);
         if (findUser == null)
         {
-            return null;
+            throw new UnauthorizedAccessException();
         }
 
-        if (await UserManager.CheckPasswordAsync(findUser, dto.Password))
+        if (!await UserManager.CheckPasswordAsync(findUser, dto.Password))
         {
-            return null;
+            throw new UnauthorizedAccessException();
         }
 
-        var token = new JwtSecurityToken(
-            issuer: "AuthServer",     
-            audience: "BackendApi",
-            claims: new[] { new Claim(ClaimTypes.NameIdentifier, findUser.Id.ToString()) },
-            expires: DateTime.UtcNow.AddYears(2),
-            signingCredentials: new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes("12345789012345789012345789012")), SecurityAlgorithms.HmacSha256) // Подпись
-        );
+         var tokenHandler = new JwtSecurityTokenHandler();
+        
+        var key = Encoding.UTF8.GetBytes("SuperSecretKeyForDevelopment12345!SuperSecretKey");
+        
+        var tokenDescriptor = new SecurityTokenDescriptor
+        {
+            Subject = new ClaimsIdentity(new[]
+            {
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.Email, user.Email!)
+            }),
+            
+            Expires = DateTime.UtcNow.AddDays(30), 
+            
+            
+           SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+        };
 
-        return new JwtSecurityTokenHandler().WriteToken(token);
+        var token = tokenHandler.CreateToken(tokenDescriptor);
+    
+
+        return tokenHandler.WriteToken(token);
     }
 }

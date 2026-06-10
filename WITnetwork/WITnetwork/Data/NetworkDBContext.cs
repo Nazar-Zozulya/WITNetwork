@@ -10,4 +10,6 @@ public class NetworkDBContext(DbContextOptions<NetworkDBContext> options): Ident
     public DbSet<Post> Posts { get; set; }
     public DbSet<Tag> Tags { get; set; }
     public DbSet<Image> Images { get; set; }
+
+    public DbSet<Friendship> Friendships { get; set; }
 }

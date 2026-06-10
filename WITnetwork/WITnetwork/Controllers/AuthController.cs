@@ -9,8 +9,8 @@ using Microsoft.IdentityModel.Tokens;
 using WITnetwork.Models;
 
 [ApiController]
-[Route("api/[controller]")]
-public class AuthController (UserManager<UserProfile> UserManager) : ControllerBase
+[Route("api/user/[controller]")]
+public class AuthController (UserManager<UserProfile> UserManager, IAuthService AuthService) : ControllerBase
 {
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterDto dto)
@@ -26,21 +26,15 @@ public class AuthController (UserManager<UserProfile> UserManager) : ControllerB
         //     numBytesRequested: 256 / 8));
         // Если что способ хеширования взял от сюда
         // https://learn.microsoft.com/ru-ru/aspnet/core/security/data-protection/consumer-apis/password-hashing?view=aspnetcore-10.0
-        
-        var NewUser = new UserProfile{
-            Email = dto.Email,
-            UserName = "hh"
-            // PasswordHash = dto.Password,
-        };
 
-        var result = await UserManager.CreateAsync(NewUser, dto.Password);
+        var result = await AuthService.Register(dto, UserManager);
         // return result;
 
         // var createdUser = authService.Register(dto, UserManager);
         return Ok(result);
     }
 
-     [HttpPost("login")]
+    [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginDto dto)
     {
 
@@ -51,33 +45,35 @@ public class AuthController (UserManager<UserProfile> UserManager) : ControllerB
             return Unauthorized(new { Message = "Неверный email или пароль" });
         }
 
+        var result = await AuthService.Login(dto, UserManager, user);
+
         
-        var tokenHandler = new JwtSecurityTokenHandler();
+        // var tokenHandler = new JwtSecurityTokenHandler();
         
         // Этот ключ должен в точности совпадать с тем, что в Program.cs
-        var key = Encoding.UTF8.GetBytes("SuperSecretKeyForDevelopment12345!SuperSecretKey");
+        // var key = Encoding.UTF8.GetBytes("SuperSecretKeyForDevelopment12345!SuperSecretKey");
         
-        var tokenDescriptor = new SecurityTokenDescriptor
-        {
-            Subject = new ClaimsIdentity(new[]
-            {
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()), 
-                new Claim(ClaimTypes.Email, user.Email!)
-            }),
+        // var tokenDescriptor = new SecurityTokenDescriptor
+        // {
+        //     Subject = new ClaimsIdentity(new[]
+        //     {
+        //         new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+        //         new Claim(ClaimTypes.Email, user.Email!)
+        //     }),
             
-            Expires = DateTime.UtcNow.AddDays(7), 
+        //     Expires = DateTime.UtcNow.AddDays(30), 
             
             
-           SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-        };
+        //    SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+        // };
 
-        var token = tokenHandler.CreateToken(tokenDescriptor);
+        // var token = tokenHandler.CreateToken(tokenDescriptor);
         
         // return Ok(new AuthResponseDto 
         // { 
         //     Token = tokenHandler.WriteToken(token), 
         //     Message = "Успешный вход!" 
         // });
-        return Ok(tokenHandler.WriteToken(token));
+        return Ok(result);
     }
 }

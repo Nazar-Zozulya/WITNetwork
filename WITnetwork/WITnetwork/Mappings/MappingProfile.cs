@@ -14,6 +14,6 @@ public class MappingProfile : Profile
         CreateMap<CreatePostDto, Post>();
         CreateMap<Tag, TagResponseDto>();
         CreateMap<CreateTagDto, Tag>();
-
+        CreateMap<UserProfile, AuthorDto>();
     }
 }

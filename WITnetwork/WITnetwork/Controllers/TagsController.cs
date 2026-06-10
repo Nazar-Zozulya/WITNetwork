@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/post/[controller]")]
 public class TagsController(ITagService tagService) : ControllerBase
 {
     [HttpGet]

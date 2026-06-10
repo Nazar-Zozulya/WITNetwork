@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/post/[controller]")]
 public class PostController(IPostService postService) : ControllerBase
 {
     [HttpGet("get-all")]
