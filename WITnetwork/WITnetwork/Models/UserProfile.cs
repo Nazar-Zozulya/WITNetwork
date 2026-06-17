@@ -19,6 +19,10 @@ public class UserProfile: IdentityUser<Guid>
 
     public string? Avatar { get; set; }
 
+    // public ICollection<Chat> Chats { get; set; }
+
+    // public ICollection<Chat> ChatsWhereAdmin { get; set; }
+
     public ICollection<Post> Posts { get; set; } = new List<Post>();
 
 }

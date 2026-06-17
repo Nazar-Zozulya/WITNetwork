@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using WITnetwork.Data;
@@ -11,9 +12,11 @@ using WITnetwork.Data;
 namespace WITnetwork.Migrations
 {
     [DbContext(typeof(NetworkDBContext))]
-    partial class NetworkDBContextModelSnapshot : ModelSnapshot
+    [Migration("20260610133554_addChatMigrations")]
+    partial class addChatMigrations
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -34,11 +37,11 @@ namespace WITnetwork.Migrations
                     b.Property<Guid?>("AvatarId")
                         .HasColumnType("uuid");
 
-                    b.Property<bool>("IsGroup")
-                        .HasColumnType("boolean");
-
                     b.Property<string>("Name")
                         .HasColumnType("text");
+
+                    b.Property<bool>("isGroup")
+                        .HasColumnType("boolean");
 
                     b.HasKey("Id");
 
@@ -463,7 +466,7 @@ namespace WITnetwork.Migrations
             modelBuilder.Entity("Message", b =>
                 {
                     b.HasOne("Chat", "Chat")
-                        .WithMany("Messages")
+                        .WithMany()
                         .HasForeignKey("ChatId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -576,8 +579,6 @@ namespace WITnetwork.Migrations
 
             modelBuilder.Entity("Chat", b =>
                 {
-                    b.Navigation("Messages");
-
                     b.Navigation("Users");
                 });
 

@@ -127,7 +127,7 @@ public class FriendshipService(NetworkDBContext context, IMapper mapper) : IFrie
 
 
         var deletedFriendship = await context.Friendships
-            .Where(f => f.Status == false && f.FromId == receiverId && f.ToId == userId)
+            .Where(f => f.FromId == receiverId && f.ToId == userId || f.FromId == userId && f.ToId == receiverId)
             .ExecuteDeleteAsync();
         await context.SaveChangesAsync();
 
@@ -138,9 +138,9 @@ public class FriendshipService(NetworkDBContext context, IMapper mapper) : IFrie
                 f.ToId == receiverId
             );
 
-        if (findFriendship != null)
+        if (findFriendship == null)
         {
-            return Result.Success("request created succesfully");
+            return Result.Success("friendship deleted succesfully");
         }
         return Result.Error("123");
     }

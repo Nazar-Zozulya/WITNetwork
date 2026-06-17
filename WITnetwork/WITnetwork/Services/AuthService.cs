@@ -40,7 +40,7 @@ public class AuthService(NetworkDBContext context, IMapper mapper) : IAuthServic
             throw new UnauthorizedAccessException();
         }
 
-         var tokenHandler = new JwtSecurityTokenHandler();
+        var tokenHandler = new JwtSecurityTokenHandler();
         
         var key = Encoding.UTF8.GetBytes("SuperSecretKeyForDevelopment12345!SuperSecretKey");
         
