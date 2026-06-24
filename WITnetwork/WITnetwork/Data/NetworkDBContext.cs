@@ -16,4 +16,6 @@ public class NetworkDBContext(DbContextOptions<NetworkDBContext> options): Ident
     public DbSet<Chat> Chats { get; set; }
 
     public DbSet<Message> Messages { get; set; }
+
+    public DbSet<PostImage> PostImages { get; set; }
 }

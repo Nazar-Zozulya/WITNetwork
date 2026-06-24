@@ -21,5 +21,20 @@ public class Post
 
     public ICollection<Tag> Tags { get; set; } = new List<Tag>();
 
-    public ICollection<Image> Image { get; set; } = new List<Image>();
+    public ICollection<PostImage> Images { get; set; } = new List<PostImage>();
+
+}
+
+
+public class PostImage
+{
+    public Guid Id { get; set; }
+
+    public Guid PostId { get; set; }
+
+    public Post? Post { get; set; }
+
+    public string Url { get; set; } = string.Empty;
+
+    public string PublicId { get; set; } = string.Empty;
 }

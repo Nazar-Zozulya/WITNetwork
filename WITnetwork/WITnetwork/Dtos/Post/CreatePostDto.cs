@@ -5,5 +5,6 @@ public record CreatePostDto (
     [ Required ] string Title,
     string? Content,
     string? Topic,
-    ICollection<Guid> TagIds
+    ICollection<Guid> TagIds,
+    List<IFormFile>? Images
 );

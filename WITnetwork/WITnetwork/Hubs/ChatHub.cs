@@ -12,8 +12,10 @@ public class ChatHub(NetworkDBContext context) : Hub
     public void JoinChat(Guid chatId)
     {
         Groups.AddToGroupAsync(Context.ConnectionId, $"chat_{chatId.ToString()}");
+        System.Console.WriteLine(123123);
     }
 
+    
     public async Task SendMessage(Guid chatId, string text)
     {
         var senderId = Context.User.FindFirstValue(ClaimTypes.NameIdentifier);
