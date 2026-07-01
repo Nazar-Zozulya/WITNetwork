@@ -18,4 +18,28 @@ public class NetworkDBContext(DbContextOptions<NetworkDBContext> options): Ident
     public DbSet<Message> Messages { get; set; }
 
     public DbSet<PostImage> PostImages { get; set; }
+
+    protected override void OnModelCreating(ModelBuilder builder)
+    {
+
+        base.OnModelCreating(builder);
+
+        builder.Entity<Chat>()
+            .HasMany(c => c.Users)
+            .WithMany() 
+            .UsingEntity(j => j.ToTable("ChatParticipants")); 
+
+        builder.Entity<Message>()
+            .HasOne(m => m.Sender)
+            .WithMany()
+            .HasForeignKey(m => m.SenderId)
+            
+            .OnDelete(DeleteBehavior.SetNull); 
+            
+        builder.Entity<Message>()
+            .HasOne(m => m.Chat)
+            .WithMany(c => c.Messages)
+            .HasForeignKey(m => m.ChatId)
+            .OnDelete(DeleteBehavior.Cascade); 
+    }
 }

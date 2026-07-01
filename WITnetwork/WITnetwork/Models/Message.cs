@@ -13,9 +13,10 @@ public class Message
 
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
 
-    public required UserProfile Sender { get; set; }
+    public UserProfile? Sender { get; set; }
 
-    public Guid SenderId { get; set; }
+    public Guid? SenderId { get; set; }
 
-    public ICollection<UserProfile> Readers { get; set; } = new List<UserProfile>();
+    // public ICollection<UserProfile> Readers { get; set; } = new List<UserProfile>();
+    public List<UserProfile> Readers { get; set; } = new ();
 }

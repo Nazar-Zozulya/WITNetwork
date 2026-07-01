@@ -8,7 +8,7 @@ using WITnetwork.Data;
 using WITnetwork.Models;
 using WITnetwork.Services;
 
-public class PostService(NetworkDBContext context, IMapper mapper, PhotoService photoService) : IPostService
+public class PostService(NetworkDBContext context, IMapper mapper, IPhotoService photoService) : IPostService
 {
     public async Task<IEnumerable<PostResponseDto>> GetAllPostsAsync()
     {
@@ -70,6 +70,7 @@ public class PostService(NetworkDBContext context, IMapper mapper, PhotoService 
     {
         var post = await context.Posts.Where(p => p.Id == postId)
             .ExecuteDeleteAsync();
+
 
         // if (post == null) return "post not found";
 

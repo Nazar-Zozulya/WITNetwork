@@ -81,4 +81,33 @@ public class ChatService(NetworkDBContext context, IMapper mapper) : IChatServic
             .ToListAsync();
         return allChats;
     }
+    
+    public async Task<Chat> AddUsersToChatAsync(Guid chatId, Guid adminId, List<Guid> userIds)
+    {
+        var chat = await context.Chats
+            .Include(c => c.Users)
+            .Include(c => c.Messages)
+            .FirstOrDefaultAsync(c => c.Id == chatId && c.AdminId == adminId);
+
+        if (chat == null)
+        {
+            throw new Exception("Chat not found or you are not the admin.");
+        }
+
+        var usersToAdd = await context.Users
+            .Where(u => userIds.Contains(u.Id))
+            .ToListAsync();
+
+        foreach (var user in usersToAdd)
+        {
+            if (!chat.Users.Any(u => u.Id == user.Id))
+            {
+                chat.Users.Add(user);
+            }
+        }
+
+        await context.SaveChangesAsync();
+
+        return chat;
+    }
 }

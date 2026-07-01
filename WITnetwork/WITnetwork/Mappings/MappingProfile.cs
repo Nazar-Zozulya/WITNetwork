@@ -18,5 +18,6 @@ public class MappingProfile : Profile
         CreateMap<Tag, TagResponseDto>();
         CreateMap<CreateTagDto, Tag>();
         CreateMap<UserProfile, AuthorDto>();
+        CreateMap<Message, MessageDto>();
     }
 }

@@ -5,18 +5,50 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using WITnetwork.Data;
 using Microsoft.EntityFrameworkCore;
+using AutoMapper;
 
 [Authorize]
-public class ChatHub(NetworkDBContext context) : Hub
+public class ChatHub(NetworkDBContext context, IMapper mapper, IChatService chatService) : Hub
 {
     public void JoinChat(Guid chatId)
     {
-        Groups.AddToGroupAsync(Context.ConnectionId, $"chat_{chatId.ToString()}");
+        Groups.AddToGroupAsync(Context.ConnectionId, $"chat_{chatId}");
         System.Console.WriteLine(123123);
     }
 
+    public async Task LeaveChat(Guid chatId)
+    {
+        await Groups.RemoveFromGroupAsync(
+            Context.ConnectionId,
+            $"chat_{chatId}"
+        );
+
+        await Clients.OthersInGroup($"chat_{chatId}")
+            .SendAsync("chat:user_left", Context.UserIdentifier);
+    }
+
+    public async Task<ChatResponseDto> AddUsersToChat(AddUsersRequestDto request)
+    {
+        var adminId = Guid.Parse(Context.UserIdentifier!);
+
+        var updatedChat = await chatService.AddUsersToChatAsync(
+            request.ChatId,
+            adminId,
+            request.UserIds
+        );
+
+        var chatDto = mapper.Map<ChatResponseDto>(updatedChat);
+
+        await Clients.OthersInGroup($"chat_{request.ChatId}")
+            .SendAsync("chat:updated", chatDto);
+
+        return chatDto;
+    }
+
+
+
     
-    public async Task SendMessage(Guid chatId, string text)
+    public async void SendMessage(Guid chatId, string text)
     {
         var senderId = Context.User.FindFirstValue(ClaimTypes.NameIdentifier);
 
@@ -31,10 +63,12 @@ public class ChatHub(NetworkDBContext context) : Hub
 
         await context.SaveChangesAsync();
 
-        Clients.Group($"chat_{chatId.ToString()}").SendAsync("message:new", NewMessage);
+        var messageDto = mapper.Map<MessageDto>(NewMessage.Entity);
+
+        await Clients.Group($"chat_{chatId.ToString()}").SendAsync("message:new", messageDto);
     }
 
-    public async Task SeeMessage(Guid MessageId)
+    public async void SeeMessage(Guid MessageId)
     {
         var readerId = Context.User.FindFirstValue(ClaimTypes.NameIdentifier);
 
@@ -45,7 +79,7 @@ public class ChatHub(NetworkDBContext context) : Hub
 
         if (reader == null) return;
 
-        var message = await context.Messages.FirstOrDefaultAsync(message => message.Id == MessageId);
+        var message = await context.Messages.Include(m => m.Readers).FirstOrDefaultAsync(message => message.Id == MessageId);
 
         if (!message.Readers.Any(u => u.Id == reader.Id))
         {
@@ -55,6 +89,6 @@ public class ChatHub(NetworkDBContext context) : Hub
 
         if (message == null) return;
 
-        Clients.Group($"chat_{message.ChatId.ToString()}").SendAsync("message:saw", message);
+        await Clients.Group($"chat_{message.ChatId.ToString()}").SendAsync("message:saw", message);
     }
 }
