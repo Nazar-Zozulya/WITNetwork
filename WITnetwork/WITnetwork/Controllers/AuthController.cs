@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using WITnetwork.Dtos;
 using WITnetwork.Models;
 
 [ApiController]
@@ -15,65 +16,56 @@ public class AuthController (UserManager<UserProfile> UserManager, IAuthService 
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterDto dto)
     {
-        // создаем соль для хеширования
-        // byte[] salt = RandomNumberGenerator.GetBytes(128 / 8); 
-        // хешируем пароль
-        // string HashedPassword = Convert.ToBase64String(KeyDerivation.Pbkdf2(
-        //     password: dto.Password!,
-        //     salt: salt,
-        //     prf: KeyDerivationPrf.HMACSHA256,
-        //     iterationCount: 100000,
-        //     numBytesRequested: 256 / 8));
-        // Если что способ хеширования взял от сюда
-        // https://learn.microsoft.com/ru-ru/aspnet/core/security/data-protection/consumer-apis/password-hashing?view=aspnetcore-10.0
-
-        var result = await AuthService.Register(dto, UserManager);
-        // return result;
-
-        // var createdUser = authService.Register(dto, UserManager);
-        return Ok(result);
+        try
+        {
+            var result = await AuthService.Register(dto);
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { Message = ex.Message });
+        }
     }
 
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginDto dto)
     {
-
-        var user = await UserManager.FindByEmailAsync(dto.Email);
-        
-        if (user == null || !await UserManager.CheckPasswordAsync(user, dto.Password))
+        try
         {
-            return Unauthorized(new { Message = "Неверный email или пароль" });
+            var result = await AuthService.Login(dto);
+            return Ok(result);
         }
+        catch (Exception ex)
+        {
+            return BadRequest(new { Message = ex.Message });
+        }
+    }
 
-        var result = await AuthService.Login(dto, UserManager, user);
+    [HttpPost("pre-confirm-email")]
+    public async Task<IActionResult> PreConfirmEmail([FromBody] PreConfirmEmailDto dto)
+    {
+        try
+        {
+            var result = await AuthService.PreConfirmEmail(dto);
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { Message = ex.Message });
+        }
+    }
 
-        
-        // var tokenHandler = new JwtSecurityTokenHandler();
-        
-        // Этот ключ должен в точности совпадать с тем, что в Program.cs
-        // var key = Encoding.UTF8.GetBytes("SuperSecretKeyForDevelopment12345!SuperSecretKey");
-        
-        // var tokenDescriptor = new SecurityTokenDescriptor
-        // {
-        //     Subject = new ClaimsIdentity(new[]
-        //     {
-        //         new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-        //         new Claim(ClaimTypes.Email, user.Email!)
-        //     }),
-            
-        //     Expires = DateTime.UtcNow.AddDays(30), 
-            
-            
-        //    SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-        // };
-
-        // var token = tokenHandler.CreateToken(tokenDescriptor);
-        
-        // return Ok(new AuthResponseDto 
-        // { 
-        //     Token = tokenHandler.WriteToken(token), 
-        //     Message = "Успешный вход!" 
-        // });
-        return Ok(result);
+    [HttpPost("confirm-email")]
+    public async Task<IActionResult> ConfirmEmail([FromBody] ConfirmEmailDto dto)
+    {
+        try
+        {
+            var result = await AuthService.ConfirmEmail(dto);
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { Message = ex.Message });
+        }
     }
 }

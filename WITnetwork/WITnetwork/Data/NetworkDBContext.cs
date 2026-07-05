@@ -19,6 +19,8 @@ public class NetworkDBContext(DbContextOptions<NetworkDBContext> options): Ident
 
     public DbSet<PostImage> PostImages { get; set; }
 
+    public DbSet<EmailVerification> EmailVerifications { get; set; }
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
 

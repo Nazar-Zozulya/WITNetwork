@@ -5,12 +5,14 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using WITnetwork.Data;
+using WITnetwork.Helpers;
 using WITnetwork.Models;
 using WITnetwork.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection("CloudinarySettings"));
+builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 
 builder.Services.AddControllers();
 builder.Services.AddAutoMapper(cfg => cfg.AddMaps(typeof(Program).Assembly));
@@ -20,6 +22,8 @@ builder.Services.AddScoped<ITagService, TagService>();
 builder.Services.AddScoped<IPostService, PostService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IFriendshipService, FriendshipService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<TokenManager>();
 
 builder.Services.AddSignalR();
 
