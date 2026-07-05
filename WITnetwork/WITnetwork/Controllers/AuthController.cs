@@ -19,11 +19,11 @@ public class AuthController (UserManager<UserProfile> UserManager, IAuthService 
         try
         {
             var result = await AuthService.Register(dto);
-            return Ok(result);
+            return Ok(new { status = "success", data = result });
         }
         catch (Exception ex)
         {
-            return BadRequest(new { Message = ex.Message });
+            return BadRequest(new { status = "error", Message = ex.Message });
         }
     }
 
@@ -33,11 +33,11 @@ public class AuthController (UserManager<UserProfile> UserManager, IAuthService 
         try
         {
             var result = await AuthService.Login(dto);
-            return Ok(result);
+            return Ok(new { status = "success", data = result });
         }
         catch (Exception ex)
         {
-            return BadRequest(new { Message = ex.Message });
+            return BadRequest(new { status = "error", Message = ex.Message });
         }
     }
 
@@ -47,11 +47,11 @@ public class AuthController (UserManager<UserProfile> UserManager, IAuthService 
         try
         {
             var result = await AuthService.PreConfirmEmail(dto);
-            return Ok(result);
+            return Ok(new { status = "success", data = result });
         }
         catch (Exception ex)
         {
-            return BadRequest(new { Message = ex.Message });
+            return BadRequest(new { status = "error", Message = ex.Message });
         }
     }
 
@@ -61,11 +61,11 @@ public class AuthController (UserManager<UserProfile> UserManager, IAuthService 
         try
         {
             var result = await AuthService.ConfirmEmail(dto);
-            return Ok(result);
+            return Ok(new { status = "success", data = result });
         }
         catch (Exception ex)
         {
-            return BadRequest(new { Message = ex.Message });
+            return BadRequest(new { status = "error", Message = ex.Message });
         }
     }
 }
