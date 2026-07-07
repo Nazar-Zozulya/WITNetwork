@@ -5,7 +5,7 @@ using WITnetwork.Models;
 
 namespace WITnetwork.Data;
 
-public class NetworkDBContext(DbContextOptions<NetworkDBContext> options): IdentityDbContext<UserProfile,IdentityRole<Guid>, Guid> (options)
+public class NetworkDBContext(DbContextOptions<NetworkDBContext> options): IdentityDbContext<UserProfile,IdentityRole<long>, long> (options)
 {
     public DbSet<Post> Posts { get; set; }
     public DbSet<Tag> Tags { get; set; }
@@ -20,6 +20,8 @@ public class NetworkDBContext(DbContextOptions<NetworkDBContext> options): Ident
     public DbSet<PostImage> PostImages { get; set; }
 
     public DbSet<EmailVerification> EmailVerifications { get; set; }
+
+    public DbSet<Profile> Profiles { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
