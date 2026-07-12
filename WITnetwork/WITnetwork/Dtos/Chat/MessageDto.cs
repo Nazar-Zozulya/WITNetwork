@@ -6,12 +6,12 @@
 using WITnetwork.Models;
 
 public record MessageDto (
-    Guid Id,
+    long Id,
     string? Text,
     Chat? Chat,
-    Guid ChatId,
+    long ChatId,
     DateTimeOffset CreatedAt,
     UserProfile? Sender,
-    Guid? SenderId,
+    long? SenderId,
     ICollection<UserProfile> Readers
 );

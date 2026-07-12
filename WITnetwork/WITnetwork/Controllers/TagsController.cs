@@ -3,9 +3,10 @@
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using WITnetwork.Services;
 
 [ApiController]
-[Route("api/post/[controller]")]
+[Route("api/post")]
 public class TagsController(ITagService tagService) : ControllerBase
 {
     [HttpGet]

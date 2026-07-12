@@ -10,13 +10,13 @@ using AutoMapper;
 [Authorize]
 public class ChatHub(NetworkDBContext context, IMapper mapper, IChatService chatService) : Hub
 {
-    public void JoinChat(Guid chatId)
+    public void JoinChat(long chatId)
     {
         Groups.AddToGroupAsync(Context.ConnectionId, $"chat_{chatId}");
         System.Console.WriteLine(123123);
     }
 
-    public async Task LeaveChat(Guid chatId)
+    public async Task LeaveChat(long chatId)
     {
         await Groups.RemoveFromGroupAsync(
             Context.ConnectionId,
@@ -29,7 +29,7 @@ public class ChatHub(NetworkDBContext context, IMapper mapper, IChatService chat
 
     public async Task<ChatResponseDto> AddUsersToChat(AddUsersRequestDto request)
     {
-        var adminId = Guid.Parse(Context.UserIdentifier!);
+        var adminId = long.Parse(Context.UserIdentifier!);
 
         var updatedChat = await chatService.AddUsersToChatAsync(
             request.ChatId,
@@ -55,7 +55,7 @@ public class ChatHub(NetworkDBContext context, IMapper mapper, IChatService chat
         if (senderId == null) return;
 
         var sender = await context.Users
-            .FirstOrDefaultAsync(x => x.Id == Guid.Parse(senderId));
+            .FirstOrDefaultAsync(x => x.Id == long.Parse(senderId));
 
         if (sender == null) return;
 
@@ -68,14 +68,14 @@ public class ChatHub(NetworkDBContext context, IMapper mapper, IChatService chat
         await Clients.Group($"chat_{chatId.ToString()}").SendAsync("message:new", messageDto);
     }
 
-    public async void SeeMessage(Guid MessageId)
+    public async void SeeMessage(long MessageId)
     {
         var readerId = Context.User.FindFirstValue(ClaimTypes.NameIdentifier);
 
         if (readerId == null) return;
 
         var reader = await context.Users
-            .FirstOrDefaultAsync(x => x.Id == Guid.Parse(readerId));
+            .FirstOrDefaultAsync(x => x.Id == long.Parse(readerId));
 
         if (reader == null) return;
 

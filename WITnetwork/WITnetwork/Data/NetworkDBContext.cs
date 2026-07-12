@@ -45,5 +45,15 @@ public class NetworkDBContext(DbContextOptions<NetworkDBContext> options): Ident
             .WithMany(c => c.Messages)
             .HasForeignKey(m => m.ChatId)
             .OnDelete(DeleteBehavior.Cascade); 
+        
+        builder.Entity<Friendship>()
+            .HasOne(f => f.From)
+            .WithMany(u => u.FriendshipsFrom)
+            .HasForeignKey(f => f.FromId);
+
+        builder.Entity<Friendship>()
+            .HasOne(f => f.To)
+            .WithMany(u => u.FriendshipsTo)
+            .HasForeignKey(f => f.ToId);
     }
 }

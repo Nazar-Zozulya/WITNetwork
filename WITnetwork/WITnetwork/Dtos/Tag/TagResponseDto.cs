@@ -1,8 +1,9 @@
 
 
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 public record TagResponseDto (
-    [ Required ] Guid Id,
-    [ Required ] string Name
+    [ property: JsonPropertyName("id") ] long Id,
+    [ property: JsonPropertyName("name") ] string Name
 );

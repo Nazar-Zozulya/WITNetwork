@@ -2,7 +2,7 @@
 
 
 public record AuthorDto(
-    Guid Id, 
+    long Id, 
     string Pseudonym,
 
     string Avatar,

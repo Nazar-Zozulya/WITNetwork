@@ -22,40 +22,13 @@ namespace WITnetwork.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Chat", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("AdminId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid?>("AvatarId")
-                        .HasColumnType("uuid");
-
-                    b.Property<bool>("IsGroup")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AdminId");
-
-                    b.HasIndex("AvatarId");
-
-                    b.ToTable("Chats");
-                });
-
             modelBuilder.Entity("ChatUserProfile", b =>
                 {
-                    b.Property<Guid>("ChatId")
-                        .HasColumnType("uuid");
+                    b.Property<long>("ChatId")
+                        .HasColumnType("bigint");
 
-                    b.Property<Guid>("UsersId")
-                        .HasColumnType("uuid");
+                    b.Property<long>("UsersId")
+                        .HasColumnType("bigint");
 
                     b.HasKey("ChatId", "UsersId");
 
@@ -66,18 +39,20 @@ namespace WITnetwork.Migrations
 
             modelBuilder.Entity("Friendship", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("bigint");
 
-                    b.Property<Guid>("FromId")
-                        .HasColumnType("uuid");
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("FromId")
+                        .HasColumnType("bigint");
 
                     b.Property<bool>("Status")
                         .HasColumnType("boolean");
 
-                    b.Property<Guid>("ToId")
-                        .HasColumnType("uuid");
+                    b.Property<long>("ToId")
+                        .HasColumnType("bigint");
 
                     b.HasKey("Id");
 
@@ -90,18 +65,20 @@ namespace WITnetwork.Migrations
 
             modelBuilder.Entity("Message", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("bigint");
 
-                    b.Property<Guid>("ChatId")
-                        .HasColumnType("uuid");
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("ChatId")
+                        .HasColumnType("bigint");
 
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<Guid?>("SenderId")
-                        .HasColumnType("uuid");
+                    b.Property<long?>("SenderId")
+                        .HasColumnType("bigint");
 
                     b.Property<string>("Text")
                         .HasColumnType("text");
@@ -115,11 +92,13 @@ namespace WITnetwork.Migrations
                     b.ToTable("Messages");
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<System.Guid>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<long>", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
@@ -142,7 +121,7 @@ namespace WITnetwork.Migrations
                     b.ToTable("AspNetRoles", (string)null);
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<long>", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -156,8 +135,8 @@ namespace WITnetwork.Migrations
                     b.Property<string>("ClaimValue")
                         .HasColumnType("text");
 
-                    b.Property<Guid>("RoleId")
-                        .HasColumnType("uuid");
+                    b.Property<long>("RoleId")
+                        .HasColumnType("bigint");
 
                     b.HasKey("Id");
 
@@ -166,7 +145,7 @@ namespace WITnetwork.Migrations
                     b.ToTable("AspNetRoleClaims", (string)null);
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<System.Guid>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<long>", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -180,8 +159,8 @@ namespace WITnetwork.Migrations
                     b.Property<string>("ClaimValue")
                         .HasColumnType("text");
 
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid");
+                    b.Property<long>("UserId")
+                        .HasColumnType("bigint");
 
                     b.HasKey("Id");
 
@@ -190,7 +169,7 @@ namespace WITnetwork.Migrations
                     b.ToTable("AspNetUserClaims", (string)null);
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<System.Guid>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<long>", b =>
                 {
                     b.Property<string>("LoginProvider")
                         .HasColumnType("text");
@@ -201,8 +180,8 @@ namespace WITnetwork.Migrations
                     b.Property<string>("ProviderDisplayName")
                         .HasColumnType("text");
 
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid");
+                    b.Property<long>("UserId")
+                        .HasColumnType("bigint");
 
                     b.HasKey("LoginProvider", "ProviderKey");
 
@@ -211,13 +190,13 @@ namespace WITnetwork.Migrations
                     b.ToTable("AspNetUserLogins", (string)null);
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<System.Guid>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<long>", b =>
                 {
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid");
+                    b.Property<long>("UserId")
+                        .HasColumnType("bigint");
 
-                    b.Property<Guid>("RoleId")
-                        .HasColumnType("uuid");
+                    b.Property<long>("RoleId")
+                        .HasColumnType("bigint");
 
                     b.HasKey("UserId", "RoleId");
 
@@ -226,10 +205,10 @@ namespace WITnetwork.Migrations
                     b.ToTable("AspNetUserRoles", (string)null);
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<System.Guid>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<long>", b =>
                 {
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid");
+                    b.Property<long>("UserId")
+                        .HasColumnType("bigint");
 
                     b.Property<string>("LoginProvider")
                         .HasColumnType("text");
@@ -247,17 +226,83 @@ namespace WITnetwork.Migrations
 
             modelBuilder.Entity("PostTag", b =>
                 {
-                    b.Property<Guid>("PostsId")
-                        .HasColumnType("uuid");
+                    b.Property<long>("PostsId")
+                        .HasColumnType("bigint");
 
-                    b.Property<Guid>("TagsId")
-                        .HasColumnType("uuid");
+                    b.Property<long>("TagsId")
+                        .HasColumnType("bigint");
 
                     b.HasKey("PostsId", "TagsId");
 
                     b.HasIndex("TagsId");
 
                     b.ToTable("PostTag");
+                });
+
+            modelBuilder.Entity("Profile", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Avatar")
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset>("BirthDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsImageSignature")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsTextSignature")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Pseudonym")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Signature")
+                        .HasColumnType("text");
+
+                    b.Property<long>("UserId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
+
+                    b.ToTable("Profiles");
+                });
+
+            modelBuilder.Entity("WITnetwork.Models.Chat", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("AdminId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("AvatarId")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("IsGroup")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AdminId");
+
+                    b.HasIndex("AvatarId");
+
+                    b.ToTable("Chats");
                 });
 
             modelBuilder.Entity("WITnetwork.Models.EmailVerification", b =>
@@ -286,9 +331,11 @@ namespace WITnetwork.Migrations
 
             modelBuilder.Entity("WITnetwork.Models.Image", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
                     b.Property<string>("Base64")
                         .IsRequired()
@@ -312,12 +359,14 @@ namespace WITnetwork.Migrations
 
             modelBuilder.Entity("WITnetwork.Models.Post", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("bigint");
 
-                    b.Property<Guid>("AuthorId")
-                        .HasColumnType("uuid");
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("AuthorId")
+                        .HasColumnType("bigint");
 
                     b.Property<string>("Content")
                         .HasColumnType("text");
@@ -344,18 +393,23 @@ namespace WITnetwork.Migrations
 
             modelBuilder.Entity("WITnetwork.Models.PostImage", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("bigint");
 
-                    b.Property<Guid>("PostId")
-                        .HasColumnType("uuid");
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
-                    b.Property<string>("PublicId")
+                    b.Property<string>("CompressedImage")
+                        .HasColumnType("text");
+
+                    b.Property<string>("OriginalImage")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("Url")
+                    b.Property<long>("PostId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("PublicId")
                         .IsRequired()
                         .HasColumnType("text");
 
@@ -368,9 +422,11 @@ namespace WITnetwork.Migrations
 
             modelBuilder.Entity("WITnetwork.Models.Tag", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -383,22 +439,33 @@ namespace WITnetwork.Migrations
 
             modelBuilder.Entity("WITnetwork.Models.UserProfile", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("integer");
 
-                    b.Property<string>("Avatar")
+                    b.Property<string>("Bio")
                         .HasColumnType("text");
 
-                    b.Property<DateTime?>("BirthDate")
+                    b.Property<DateTimeOffset?>("BirthDate")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("City")
+                        .HasColumnType("text");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .HasColumnType("text");
+
+                    b.Property<string>("Country")
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset>("DateJoined")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Email")
                         .HasMaxLength(256)
@@ -411,11 +478,17 @@ namespace WITnetwork.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<bool?>("IsImageSignature")
+                    b.Property<bool>("IsImageSignature")
                         .HasColumnType("boolean");
 
-                    b.Property<bool?>("IsTextSignature")
+                    b.Property<bool>("IsTextSignature")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("Language")
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset?>("LastLoginAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("LastName")
                         .IsRequired()
@@ -427,8 +500,8 @@ namespace WITnetwork.Migrations
                     b.Property<DateTimeOffset?>("LockoutEnd")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<Guid?>("MessageId")
-                        .HasColumnType("uuid");
+                    b.Property<long?>("MessageId")
+                        .HasColumnType("bigint");
 
                     b.Property<string>("NormalizedEmail")
                         .HasMaxLength(256)
@@ -447,6 +520,9 @@ namespace WITnetwork.Migrations
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("boolean");
 
+                    b.Property<int>("ProfileId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Pseudonym")
                         .HasColumnType("text");
 
@@ -456,8 +532,14 @@ namespace WITnetwork.Migrations
                     b.Property<string>("Signature")
                         .HasColumnType("text");
 
+                    b.Property<string>("TimeZone")
+                        .HasColumnType("text");
+
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("boolean");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("UserName")
                         .HasMaxLength(256)
@@ -477,26 +559,9 @@ namespace WITnetwork.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("Chat", b =>
-                {
-                    b.HasOne("WITnetwork.Models.UserProfile", "Admin")
-                        .WithMany()
-                        .HasForeignKey("AdminId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("WITnetwork.Models.Image", "Avatar")
-                        .WithMany()
-                        .HasForeignKey("AvatarId");
-
-                    b.Navigation("Admin");
-
-                    b.Navigation("Avatar");
-                });
-
             modelBuilder.Entity("ChatUserProfile", b =>
                 {
-                    b.HasOne("Chat", null)
+                    b.HasOne("WITnetwork.Models.Chat", null)
                         .WithMany()
                         .HasForeignKey("ChatId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -512,13 +577,13 @@ namespace WITnetwork.Migrations
             modelBuilder.Entity("Friendship", b =>
                 {
                     b.HasOne("WITnetwork.Models.UserProfile", "From")
-                        .WithMany()
+                        .WithMany("FriendshipsFrom")
                         .HasForeignKey("FromId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("WITnetwork.Models.UserProfile", "To")
-                        .WithMany()
+                        .WithMany("FriendshipsTo")
                         .HasForeignKey("ToId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -530,7 +595,7 @@ namespace WITnetwork.Migrations
 
             modelBuilder.Entity("Message", b =>
                 {
-                    b.HasOne("Chat", "Chat")
+                    b.HasOne("WITnetwork.Models.Chat", "Chat")
                         .WithMany("Messages")
                         .HasForeignKey("ChatId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -546,16 +611,16 @@ namespace WITnetwork.Migrations
                     b.Navigation("Sender");
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<long>", b =>
                 {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole<System.Guid>", null)
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole<long>", null)
                         .WithMany()
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<System.Guid>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<long>", b =>
                 {
                     b.HasOne("WITnetwork.Models.UserProfile", null)
                         .WithMany()
@@ -564,7 +629,7 @@ namespace WITnetwork.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<System.Guid>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<long>", b =>
                 {
                     b.HasOne("WITnetwork.Models.UserProfile", null)
                         .WithMany()
@@ -573,9 +638,9 @@ namespace WITnetwork.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<System.Guid>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<long>", b =>
                 {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole<System.Guid>", null)
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole<long>", null)
                         .WithMany()
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -588,7 +653,7 @@ namespace WITnetwork.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<System.Guid>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<long>", b =>
                 {
                     b.HasOne("WITnetwork.Models.UserProfile", null)
                         .WithMany()
@@ -610,6 +675,34 @@ namespace WITnetwork.Migrations
                         .HasForeignKey("TagsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Profile", b =>
+                {
+                    b.HasOne("WITnetwork.Models.UserProfile", "User")
+                        .WithOne("Profile")
+                        .HasForeignKey("Profile", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("WITnetwork.Models.Chat", b =>
+                {
+                    b.HasOne("WITnetwork.Models.UserProfile", "Admin")
+                        .WithMany()
+                        .HasForeignKey("AdminId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("WITnetwork.Models.Image", "Avatar")
+                        .WithMany()
+                        .HasForeignKey("AvatarId");
+
+                    b.Navigation("Admin");
+
+                    b.Navigation("Avatar");
                 });
 
             modelBuilder.Entity("WITnetwork.Models.Post", b =>
@@ -641,14 +734,14 @@ namespace WITnetwork.Migrations
                         .HasForeignKey("MessageId");
                 });
 
-            modelBuilder.Entity("Chat", b =>
-                {
-                    b.Navigation("Messages");
-                });
-
             modelBuilder.Entity("Message", b =>
                 {
                     b.Navigation("Readers");
+                });
+
+            modelBuilder.Entity("WITnetwork.Models.Chat", b =>
+                {
+                    b.Navigation("Messages");
                 });
 
             modelBuilder.Entity("WITnetwork.Models.Post", b =>
@@ -658,7 +751,13 @@ namespace WITnetwork.Migrations
 
             modelBuilder.Entity("WITnetwork.Models.UserProfile", b =>
                 {
+                    b.Navigation("FriendshipsFrom");
+
+                    b.Navigation("FriendshipsTo");
+
                     b.Navigation("Posts");
+
+                    b.Navigation("Profile");
                 });
 #pragma warning restore 612, 618
         }

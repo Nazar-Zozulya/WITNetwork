@@ -6,5 +6,5 @@ namespace WITnetwork.Services;
 
 public interface IEmailService
 {
-    public Task<bool> SendVerificationEmailAsync(SendVerififcationEmailDto dto);
+    public Task<bool> SendVerificationEmailAsync(SendVerificationEmailDto dto);
 }

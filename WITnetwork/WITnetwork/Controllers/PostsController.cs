@@ -7,43 +7,87 @@ using WITnetwork.Services;
 namespace NetworkAsp.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/post")]
 public class PostsController(IPostService postService) : ControllerBase
 {
-    [HttpGet]
-    public async Task<IActionResult> GetAll()
-    {
-        var posts = await postService.GetAllPostsAsync();
-        return Ok(posts);
-    }
-
-    [HttpPost]
+    [HttpPost("create")]
     [Authorize]
-    public async Task<IActionResult> Create([FromForm] CreatePostDto dto)
-    {
-        // Базова перевірка, чи дійшли файли взагалі
-        if (dto.Images == null || !dto.Images.Any())
+    public async Task<IActionResult> Create([FromBody] CreatePostDto dto)
+    {        
+        try
         {
-            return BadRequest("Файли не дійшли до контролера!");
-        }
-        
-        var authorIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var authorIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-        if (authorIdString == null)
+            if (authorIdString == null)
+            {
+                return Unauthorized(new { status = "error", message = "Не вдалося визначити користувача" });
+            }
+
+            var authorId = long.Parse(authorIdString);
+
+            // Уся логіка роботи з файлами та БД інкапсульована всередині сервісу
+            var createdPost = await postService.CreatePostAsync(dto, authorId);
+
+            return Ok(new {status = "success", data = createdPost});
+        }
+        catch (Exception ex)
         {
-            return Unauthorized(new { Message = "Не вдалося визначити користувача" });
+            return BadRequest(new { status = "error", message = $"error creating post: {ex}" });
         }
-
-        var authorId = Guid.Parse(authorIdString);
-
-        // Уся логіка роботи з файлами та БД інкапсульована всередині сервісу
-        var createdPost = await postService.CreatePostAsync(dto, authorId);
-
-        return Ok(createdPost);
     }
+
+
+    [HttpGet("all")]
+    public async Task<IActionResult> GetAll(
+        [FromQuery] int page,
+        [FromQuery] int size)
+    {
+        try
+        {
+            var posts = await postService.GetAllPostsAsync(page, size);
+            return Ok(new {status ="success", data = posts});      
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new {status = "error", message = $"error getting all posts: {ex}"});
+        }
+    }
+
+    [HttpGet("all/{id}")]
+    public async Task<IActionResult> GetAllPostsByUserId (
+        [FromQuery] int page,
+        [FromQuery] int size
+    )
+    {
+        try
+        {
+            var authorIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (authorIdString == null)
+            {
+                return BadRequest(new
+                {
+                    status = "error",
+                    message = $"error getting all posts from user: user not found"
+                });
+            }
+
+            var posts = await postService.GetAllPostsByUserId(long.Parse(authorIdString),page, size);
+            return Ok();
+        } 
+        catch (Exception ex)
+        {
+            return BadRequest(new
+            {
+                status = "error",
+                message = $"error getting all posts from user: {ex}"
+            });
+        }
+    }
+
 
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetById(Guid id)
+    public async Task<IActionResult> GetById(long id)
     {
         var post = await postService.GetPostByIdAsync(id);
         if (post == null) return NotFound(new { Message = "Пост не знайдено" });
@@ -51,11 +95,11 @@ public class PostsController(IPostService postService) : ControllerBase
         return Ok(post);
     }
     
-    [HttpDelete("{id}")]
+    [HttpDelete("/delete")]
     [Authorize]
-    public async Task<IActionResult> Delete(Guid id)
+    public async Task<IActionResult> Delete([FromBody] long id)
     {
-        var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
         try
         {

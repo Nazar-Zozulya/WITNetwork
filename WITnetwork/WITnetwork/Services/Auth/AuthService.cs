@@ -20,14 +20,14 @@ namespace WITnetwork.Services;
 
 public class AuthService(NetworkDBContext context, IMapper mapper, UserManager<UserProfile> UserManager, TokenManager tokenManager, IEmailService emailService) : IAuthService
 {
-    public async Task<string> Register(RegisterDto dto)
+    public async Task<string> Create(CreateDto dto)
     {
         // створюю обьект нового користувача
         var NewUser = new UserProfile
         {
             Email = dto.Email, 
             UserName = $"user_{Guid.NewGuid()}",
-            PasswordHash = dto.Password,
+            // PasswordHash = dto.Password,
         };
 
         // створюемо користувача в бд
@@ -36,8 +36,11 @@ public class AuthService(NetworkDBContext context, IMapper mapper, UserManager<U
         // перевірка чи створився користувач
         if (!result.Succeeded)
         {
-            throw new Exception("Failed to create user");
+            throw new Exception(string.Join(", ",
+                result.Errors.Select(e => e.Description)));
         }
+
+        await context.SaveChangesAsync();
 
         // повертаю токен
         return tokenManager.GenerateToken(NewUser);
@@ -73,7 +76,7 @@ public class AuthService(NetworkDBContext context, IMapper mapper, UserManager<U
         // перевіряємо чи є такий юзер
         if (findUser != null)
         {
-            throw new Exception("User not found");
+            throw new Exception("User exists");
         } 
 
         // створюємо код підтвердження
@@ -82,7 +85,7 @@ public class AuthService(NetworkDBContext context, IMapper mapper, UserManager<U
 
         // відправляємо емейл
 
-        var emailSent = await emailService.SendVerificationEmailAsync(new SendVerififcationEmailDto
+        var emailSent = await emailService.SendVerificationEmailAsync(new SendVerificationEmailDto
         {
             Email = dto.Email,
             VerificationCode = code
@@ -119,7 +122,7 @@ public class AuthService(NetworkDBContext context, IMapper mapper, UserManager<U
     public async Task<string> ConfirmEmail(ConfirmEmailDto dto)
     {
         // шукаємо код підтвердження в бд
-        var findCode = await context.EmailVerifications.FirstOrDefaultAsync(code => code.NewEmail == dto.Email && code.Code == dto.Code);
+        var findCode = await context.EmailVerifications.FirstOrDefaultAsync(code => code.NewEmail == dto.Email && code.Code == dto.Code.ToString());
 
         // перевіряємо чи є такий код
         if (findCode == null)

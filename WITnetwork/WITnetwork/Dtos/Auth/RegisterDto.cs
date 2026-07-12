@@ -1,7 +1,9 @@
+using System.Text.Json.Serialization;
+
 namespace WITnetwork.Dtos;
 
 
-public record RegisterDto(
-    string Email,
-    string Password
+public record CreateDto(
+    [property: JsonPropertyName("email")] string Email,
+    [property: JsonPropertyName("password")] string Password
 );

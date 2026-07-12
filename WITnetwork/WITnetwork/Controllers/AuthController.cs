@@ -10,24 +10,24 @@ using WITnetwork.Dtos;
 using WITnetwork.Models;
 
 [ApiController]
-[Route("api/user/[controller]")]
-public class AuthController (UserManager<UserProfile> UserManager, IAuthService AuthService) : ControllerBase
+[Route("api/user")]
+public class AuthController (IAuthService AuthService) : ControllerBase
 {
-    [HttpPost("register")]
-    public async Task<IActionResult> Register([FromBody] RegisterDto dto)
+    [HttpPost("create")]
+    public async Task<IActionResult> Create([FromBody] CreateDto dto)
     {
         try
         {
-            var result = await AuthService.Register(dto);
+            var result = await AuthService.Create(dto);
             return Ok(new { status = "success", data = result });
         }
         catch (Exception ex)
         {
-            return BadRequest(new { status = "error", Message = ex.Message });
+            return BadRequest(new { status = "error", message = ex.Message });
         }
     }
 
-    [HttpPost("login")]
+    [HttpPost("auth")]
     public async Task<IActionResult> Login([FromBody] LoginDto dto)
     {
         try
@@ -37,7 +37,7 @@ public class AuthController (UserManager<UserProfile> UserManager, IAuthService 
         }
         catch (Exception ex)
         {
-            return BadRequest(new { status = "error", Message = ex.Message });
+            return BadRequest(new { status = "error", message = ex.Message });
         }
     }
 
@@ -51,7 +51,7 @@ public class AuthController (UserManager<UserProfile> UserManager, IAuthService 
         }
         catch (Exception ex)
         {
-            return BadRequest(new { status = "error", Message = ex.Message });
+            return BadRequest(new { status = "error", message = ex.Message });
         }
     }
 
@@ -65,7 +65,7 @@ public class AuthController (UserManager<UserProfile> UserManager, IAuthService 
         }
         catch (Exception ex)
         {
-            return BadRequest(new { status = "error", Message = ex.Message });
+            return BadRequest(new { status = "error", message = ex.Message });
         }
     }
 }

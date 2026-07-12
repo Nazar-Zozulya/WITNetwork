@@ -1,6 +1,8 @@
+using System.Text.Json.Serialization;
+
 namespace WITnetwork.Dtos;
 
 public record ConfirmEmailDto (
-    string Email,
-    string Code
+    [property: JsonPropertyName("email")] string Email,
+    [property: JsonPropertyName("code")] int Code
 );

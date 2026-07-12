@@ -1,4 +1,4 @@
 public record AddUsersRequestDto(
-    Guid ChatId,
-    List<Guid> UserIds
+    long ChatId,
+    List<long> UserIds
 );

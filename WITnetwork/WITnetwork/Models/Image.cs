@@ -2,7 +2,7 @@
 
 public class Image
 {
-    public Guid Id { get; set; }
+    public long Id { get; set; }
     public string File { get; set; } = string.Empty;
 
     public string Filename { get; set; } = string.Empty;

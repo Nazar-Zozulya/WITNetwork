@@ -7,9 +7,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WITnetwork.Data;
 using WITnetwork.Dtos;
+using WITnetwork.Models;
 
 [ApiController]
-[Route("api/user/[controller]")]
+[Route("api/chat")]
 [Authorize]
 public class ChatController (NetworkDBContext context) : ControllerBase
 {
@@ -21,7 +22,7 @@ public class ChatController (NetworkDBContext context) : ControllerBase
         {
             return Unauthorized("Не вдалося определити користувача");
         }
-        var currentUserId = Guid.Parse(currentUserIdStr);
+        var currentUserId = long.Parse(currentUserIdStr);
 
         var allParticipantIds = dto.ParticipantsIds.ToList();
 
@@ -37,7 +38,7 @@ public class ChatController (NetworkDBContext context) : ControllerBase
             return BadRequest("недостатньо користувачів для створення чатів");
         }
 
-        var AdminUser = await context.Users.Where(u => u.Id == Guid.Parse(currentUserIdStr)).FirstOrDefaultAsync();
+        var AdminUser = await context.Users.Where(u => u.Id == long.Parse(currentUserIdStr)).FirstOrDefaultAsync();
 
         if (AdminUser == null)
         {
@@ -46,11 +47,11 @@ public class ChatController (NetworkDBContext context) : ControllerBase
 
         var newChat = new Chat
         {
-            Id = Guid.NewGuid(),
+            // Id = long.newL(),
             Name = dto.Name,
             IsGroup = dto.IsGroup,
             Users = participants,
-            AdminId = Guid.Parse(currentUserIdStr),
+            AdminId = long.Parse(currentUserIdStr),
             Admin = AdminUser
         };
 

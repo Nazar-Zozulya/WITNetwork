@@ -2,7 +2,7 @@ using WITnetwork.Dtos;
 
 public interface IAuthService
 {
-    Task<string> Register(RegisterDto dto);
+    Task<string> Create(CreateDto dto);
 
     Task<string> Login(LoginDto dto);
 

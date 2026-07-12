@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 namespace WITnetwork.Dtos;
 
 public record CreateChatDto (
-    List<Guid> ParticipantsIds,
+    List<long> ParticipantsIds,
     string Name,
     bool IsGroup = false
 );

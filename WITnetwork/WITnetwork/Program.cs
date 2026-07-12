@@ -1,4 +1,5 @@
 using System.Text;
+using AutoMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -23,6 +24,8 @@ builder.Services.AddScoped<IPostService, PostService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IFriendshipService, FriendshipService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<ISettingsService, SettingsService>();
+builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<TokenManager>();
 
 builder.Services.AddSignalR();
@@ -60,9 +63,9 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 builder.Services.AddDbContext<NetworkDBContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"), npgsqlOptions => npgsqlOptions.CommandTimeout(60)));
 
-builder.Services.AddIdentity<UserProfile, IdentityRole<Guid>>(options =>
+builder.Services.AddIdentity<UserProfile, IdentityRole<long>>(options =>
 {
     options.Password.RequireDigit = false;
     options.Password.RequiredLength = 6;
@@ -118,6 +121,9 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+var mapper = app.Services.GetRequiredService<IMapper>();
+mapper.ConfigurationProvider.AssertConfigurationIsValid();
+
 app.UseRouting();
 
 app.UseAuthentication();
@@ -130,6 +136,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors("AllowAll");
 
 app.UseAuthentication();
 app.UseAuthorization();
