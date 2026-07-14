@@ -7,5 +7,5 @@ using WITnetwork.Models;
 namespace WITnetwork.Services;
 
 public interface ISettingsService {
-    public Task<UserProfile> UpdateUser(UpdateUserDto dto, long id);
+    public Task<UserResponseDto> UpdateUser(UpdateUserDto dto, long id);
 }

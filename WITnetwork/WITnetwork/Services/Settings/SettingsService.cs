@@ -9,7 +9,7 @@ using WITnetwork.Models;
 namespace WITnetwork.Services;
 
 public class SettingsService(IMapper mapper, NetworkDBContext context) : ISettingsService {
-    public async Task<UserProfile> UpdateUser(UpdateUserDto dto, long id)
+    public async Task<UserResponseDto> UpdateUser(UpdateUserDto dto, long id)
     {
         try
         {
@@ -49,9 +49,23 @@ public class SettingsService(IMapper mapper, NetworkDBContext context) : ISettin
                 }
             }
 
+            if (dto.Username != null)
+            {
+                var userFromUsername = await context.Users.FirstOrDefaultAsync(u => u.UserName == dto.Username);
+
+                if (userFromUsername != null)
+                {
+                    throw new Exception("username already taken");
+                }
+
+                user.UserName = dto.Username;
+            }
+
             await context.SaveChangesAsync();
 
-            return user;
+            var mappedUser = mapper.Map<UserResponseDto>(user);
+
+            return mappedUser;
 
         } 
         catch (Exception ex)

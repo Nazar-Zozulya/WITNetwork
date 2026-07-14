@@ -23,10 +23,16 @@ public class NetworkDBContext(DbContextOptions<NetworkDBContext> options): Ident
 
     public DbSet<Profile> Profiles { get; set; }
 
+    public DbSet<Album> Albums { get; set; }
+
+    public DbSet<AlbumImage> AlbumImages { get; set; }
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
 
         base.OnModelCreating(builder);
+
+        // CHAT
 
         builder.Entity<Chat>()
             .HasMany(c => c.Users)
@@ -45,6 +51,10 @@ public class NetworkDBContext(DbContextOptions<NetworkDBContext> options): Ident
             .WithMany(c => c.Messages)
             .HasForeignKey(m => m.ChatId)
             .OnDelete(DeleteBehavior.Cascade); 
+
+
+
+        // FRIENDSHIP
         
         builder.Entity<Friendship>()
             .HasOne(f => f.From)
@@ -55,5 +65,28 @@ public class NetworkDBContext(DbContextOptions<NetworkDBContext> options): Ident
             .HasOne(f => f.To)
             .WithMany(u => u.FriendshipsTo)
             .HasForeignKey(f => f.ToId);
+
+
+
+        // ALBUM
+
+        builder.Entity<Album>()
+            .HasOne(a => a.Profile)
+            .WithMany(p => p.Albums)
+            .HasForeignKey(a => a.ProfileId);
+        
+        builder.Entity<AlbumImage>()
+            .HasOne(ai => ai.Album)
+            .WithMany(a => a.Images)
+            .HasForeignKey(ai => ai.AlbumId);
+
+        
+
+        // USER
+
+        builder.Entity<Profile>()
+            .HasOne(p => p.User)
+            .WithOne(u => u.Profile)
+            .HasForeignKey<Profile>(p => p.UserId);
     }
 }

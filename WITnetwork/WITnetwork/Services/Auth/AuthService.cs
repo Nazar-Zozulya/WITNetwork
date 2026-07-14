@@ -22,28 +22,46 @@ public class AuthService(NetworkDBContext context, IMapper mapper, UserManager<U
 {
     public async Task<string> Create(CreateDto dto)
     {
-        // створюю обьект нового користувача
-        var NewUser = new UserProfile
-        {
-            Email = dto.Email, 
-            UserName = $"user_{Guid.NewGuid()}",
-            // PasswordHash = dto.Password,
-        };
+        try{
 
-        // створюемо користувача в бд
-        var result = await UserManager.CreateAsync(NewUser, dto.Password);
+            // створюю обьект нового користувача
+            var NewUser = new UserProfile
+            {
+                Email = dto.Email, 
+                UserName = $"user_{Guid.NewGuid()}",
+                
+                // PasswordHash = dto.Password,
+            };
 
-        // перевірка чи створився користувач
-        if (!result.Succeeded)
-        {
-            throw new Exception(string.Join(", ",
-                result.Errors.Select(e => e.Description)));
+            // створюемо користувача в бд
+            var result = await UserManager.CreateAsync(NewUser, dto.Password);
+
+            // перевірка чи створився користувач
+            if (!result.Succeeded)
+            {
+                throw new Exception(string.Join(", ",
+                    result.Errors.Select(e => e.Description)));
+            }
+
+
+            // створення профілю 
+            var newProfile = new Models.Profile
+            {
+                IsImageSignature = false,
+                IsTextSignature = false,
+                UserId = NewUser.Id
+            };
+            context.Profiles.Add(newProfile);
+
+            await context.SaveChangesAsync();
+
+            // повертаю токен
+            return tokenManager.GenerateToken(NewUser);
         }
-
-        await context.SaveChangesAsync();
-
-        // повертаю токен
-        return tokenManager.GenerateToken(NewUser);
+        catch (Exception ex) 
+        {
+            throw new Exception(ex.ToString());
+        }
     }
 
 

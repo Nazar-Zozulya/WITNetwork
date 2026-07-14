@@ -31,7 +31,7 @@ public class UserProfile : IdentityUser<long>
     public string? TimeZone { get; set; }
 
     public Profile? Profile { get; set; }
-    public int ProfileId { get; set; }
+    // public int ProfileId { get; set; }
     
     // public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 

@@ -55,6 +55,10 @@ public class MappingProfile : AutoMapper.Profile
             .ForCtorParam(nameof(UserWithoutIncludes.LastLoginAt), opt => opt.MapFrom(s => s.LastLoginAt))
             .ForCtorParam(nameof(UserWithoutIncludes.DateJoined), opt => opt.MapFrom(s => s.DateJoined));
 
-        CreateMap<Profile, ProfileDto>();
+        CreateMap<WITnetwork.Models.Profile, ProfileDto>();
+
+        // ALBUM
+        CreateMap<Album, AlbumResponseDto>();
+        CreateMap<AlbumImage, AlbumImageDto>();
     }
 }
