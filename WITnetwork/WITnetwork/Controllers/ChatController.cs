@@ -8,57 +8,37 @@ using Microsoft.EntityFrameworkCore;
 using WITnetwork.Data;
 using WITnetwork.Dtos;
 using WITnetwork.Models;
+using WITnetwork.Services;
 
 [ApiController]
 [Route("api/chat")]
-[Authorize]
-public class ChatController (NetworkDBContext context) : ControllerBase
+// [Authorize]
+public class ChatController (NetworkDBContext context, IChatService chatService) : ControllerBase
 {
     [HttpPost("get-chat")]
     public async Task<IActionResult> CreateChat([FromBody] CreateChatDto dto) {
-
-        var currentUserIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        if (currentUserIdStr == null)
+        try
         {
-            return Unauthorized("Не вдалося определити користувача");
+            var result = await chatService.GetChat(dto.UserId, dto.AnotherUserId);
+            return Ok(new { status = "success", data = result });
+        } 
+        catch (Exception ex)
+        {
+            return BadRequest(new { status = "error", message = $"Error getting chat: {ex.Message}" });
         }
-        var currentUserId = long.Parse(currentUserIdStr);
+    }
 
-        var allParticipantIds = dto.ParticipantsIds.ToList();
-
-        allParticipantIds.Add(currentUserId);
-        allParticipantIds = allParticipantIds.Distinct().ToList();
-
-        var participants = await context.Users.Where(u => allParticipantIds
-            .Contains(u.Id))
-            .ToListAsync();
-
-        if (participants.Count < 2)
+    [HttpGet("chats/{id}")]
+    public async Task<IActionResult> GetIndividualChats(long id)
+    {
+        try
         {
-            return BadRequest("недостатньо користувачів для створення чатів");
+            var result = await chatService.GetIndividualChats(id);
+            return Ok(new { status = "success", data = result });
         }
-
-        var AdminUser = await context.Users.Where(u => u.Id == long.Parse(currentUserIdStr)).FirstOrDefaultAsync();
-
-        if (AdminUser == null)
+        catch (Exception ex)
         {
-            return BadRequest("user not found");
+            return BadRequest(new { status = "error", message = $"Error getting individual chats: {ex.Message}" });
         }
-
-        var newChat = new Chat
-        {
-            // Id = long.newL(),
-            Name = dto.Name,
-            IsGroup = dto.IsGroup,
-            Users = participants,
-            AdminId = long.Parse(currentUserIdStr),
-            Admin = AdminUser
-        };
-
-        context.Chats.Add(newChat);
-
-        await context.SaveChangesAsync();
-
-        return Ok(newChat);
     }
 }

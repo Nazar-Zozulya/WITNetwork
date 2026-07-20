@@ -7,6 +7,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using WITnetwork.Data;
 using WITnetwork.Helpers;
+using WITnetwork.Hubs;
 using WITnetwork.Models;
 using WITnetwork.Services;
 
@@ -27,9 +28,13 @@ builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<ISettingsService, SettingsService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAlbumService, AlbumService>();
+builder.Services.AddScoped<IChatService, ChatService>();
 builder.Services.AddScoped<TokenManager>();
 
-builder.Services.AddSignalR();
+builder.Services.AddSignalR(options =>
+{
+    options.EnableDetailedErrors = true;
+});
 
 builder.Services.AddEndpointsApiExplorer();
 
@@ -100,7 +105,9 @@ builder.Services.AddAuthentication(options =>
             var accessToken = context.Request.Query["access_token"];
             var path = context.HttpContext.Request.Path;
 
-            if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/chat"))
+            if (!string.IsNullOrEmpty(accessToken) &&
+                (path.StartsWithSegments("/chat") ||
+                path.StartsWithSegments("/global")))
             {
                 context.Token = accessToken;
             }
@@ -122,13 +129,13 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-var mapper = app.Services.GetRequiredService<IMapper>();
-mapper.ConfigurationProvider.AssertConfigurationIsValid();
+// var mapper = app.Services.GetRequiredService<IMapper>();
+// mapper.ConfigurationProvider.AssertConfigurationIsValid();
 
 app.UseRouting();
 
-app.UseAuthentication();
-app.UseAuthorization(); 
+// app.UseAuthentication();
+// app.UseAuthorization(); 
 
 if (app.Environment.IsDevelopment())
 {
@@ -146,5 +153,6 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.MapHub<ChatHub>("/chat");
+app.MapHub<GlobalHub>("/global");
 
 app.Run();

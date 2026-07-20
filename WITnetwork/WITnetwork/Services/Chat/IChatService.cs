@@ -1,9 +1,12 @@
+using WITnetwork.Dtos;
 using WITnetwork.Models;
+
+namespace WITnetwork.Services;
 
 public interface IChatService
 {
-    Task<Chat> GetChat(long userId, long anotherUserId);
+    Task<ChatResponseDto> GetChat(long userId, long anotherUserId);
 
-    Task<IEnumerable<Chat>> GetIndividualChats(long userId );
-    Task<Chat> AddUsersToChatAsync(long chatId, long adminId, List<long> userIds);
+    Task<IEnumerable<ChatResponseDto>> GetIndividualChats(long userId );
+    Task<ChatResponseDto> AddUsersToChatAsync(long chatId, long adminId, List<long> userIds);
 }

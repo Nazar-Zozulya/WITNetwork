@@ -3,11 +3,14 @@
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using WITnetwork.Data;
+using WITnetwork.Dtos;
 using WITnetwork.Models;
+
+namespace WITnetwork.Services;
 
 public class ChatService(NetworkDBContext context, IMapper mapper) : IChatService
 {
-    public async Task<Chat> GetChat(long userId, long anotherUserId) {
+    public async Task<ChatResponseDto> GetChat(long userId, long anotherUserId) {
         var findChat = await context.Chats
             .Include(c => c.Admin)
             .Include(c => c.Users)
@@ -33,17 +36,32 @@ public class ChatService(NetworkDBContext context, IMapper mapper) : IChatServic
 
         if ( findChat != null )
         {
-            return findChat;
+            var mappedFindChat = mapper.Map<ChatResponseDto>(findChat);
+
+            return mappedFindChat;
         }
 
         var admin = await context.Users.FirstOrDefaultAsync(u => u.Id == userId);
 
+        if (admin == null)
+        {
+            throw new Exception("admin not found");
+        }
+
         var anotherUser = await context.Users.FirstOrDefaultAsync(u => u.Id == anotherUserId);
+
+        if (anotherUser == null)
+        {
+            throw new Exception("another user not found");
+        }
+
 
         var createChat = context.Chats.Add(new Chat { AdminId = userId, Admin = admin,  IsGroup = false, Users = [
             admin,
             anotherUser
         ]  });
+        
+        await context.SaveChangesAsync();
 
         var newChat = await context.Chats
             .Include(c => c.Admin)
@@ -63,11 +81,19 @@ public class ChatService(NetworkDBContext context, IMapper mapper) : IChatServic
                     
                 )
             );
+
+        
+        if (newChat == null)
+        {
+            throw new Exception("createing chat error");
+        }
             
-        return newChat;
+        var mappedNewChat = mapper.Map<ChatResponseDto>(newChat);
+
+        return mappedNewChat;
     }
 
-    public async Task<IEnumerable<Chat>> GetIndividualChats(long userId)
+    public async Task<IEnumerable<ChatResponseDto>> GetIndividualChats(long userId)
     {
         var allChats = await context.Chats
             .Where(c =>
@@ -80,10 +106,13 @@ public class ChatService(NetworkDBContext context, IMapper mapper) : IChatServic
                 .Take(1))
                 .ThenInclude(m => m.Readers)
             .ToListAsync();
-        return allChats;
+            
+        var mappedAllChats = mapper.Map<IEnumerable<ChatResponseDto>>(allChats);
+
+        return mappedAllChats;
     }
     
-    public async Task<Chat> AddUsersToChatAsync(long chatId, long adminId, List<long> userIds)
+    public async Task<ChatResponseDto> AddUsersToChatAsync(long chatId, long adminId, List<long> userIds)
     {
         var chat = await context.Chats
             .Include(c => c.Users)
@@ -109,6 +138,8 @@ public class ChatService(NetworkDBContext context, IMapper mapper) : IChatServic
 
         await context.SaveChangesAsync();
 
-        return chat;
+        var mappedChat = mapper.Map<ChatResponseDto>(chat);
+
+        return mappedChat;
     }
 }

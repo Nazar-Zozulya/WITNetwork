@@ -30,11 +30,26 @@ public class UserController (IUserService userService) : ControllerBase
     }
 
     [HttpGet("get")]
-    public async Task<IActionResult> GetUserAsync()
+        public async Task<IActionResult> GetUserAsync()
     {
         try
         {
             var result = await userService.GetUserAsync(CurrentUserId);
+            return Ok(new { status = "success", data = result });
+        } 
+        catch (Exception ex)
+        {
+            return BadRequest(new { status = "error", message = $"Error getting user: {ex}" });
+        }
+    }
+
+    [HttpGet("get/{id}")]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetAnotherUserAsync(long id)
+    {
+        try
+        {
+            var result = await userService.GetUserAsync(id);
             return Ok(new { status = "success", data = result });
         } 
         catch (Exception ex)

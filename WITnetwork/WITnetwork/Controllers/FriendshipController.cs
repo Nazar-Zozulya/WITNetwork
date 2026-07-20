@@ -1,8 +1,3 @@
-
-
-
-
-
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -19,11 +14,12 @@ public class FriendshipController(IFriendshipService friendshipService) : Contro
     {
         try
         {
-            return Ok(await friendshipService.GetFriendshipsAsync(CurrentUserId));
+            var result = await friendshipService.GetFriendshipsAsync(CurrentUserId);
+            return Ok(new { status = "success", data = result });
         }
         catch (Exception ex)
         {
-            return BadRequest(new {status = "error", message = $"error getting friends: {ex}"});
+            return BadRequest(new { status = "error", message = $"error getting friends: {ex}" });
         }
     }
 
@@ -32,11 +28,12 @@ public class FriendshipController(IFriendshipService friendshipService) : Contro
     {
         try
         {
-            return Ok(await friendshipService.GetFriendRequestsAsync(CurrentUserId));
+            var result = await friendshipService.GetFriendRequestsAsync(CurrentUserId);
+            return Ok(new { status = "success", data = result });
         }
         catch (Exception ex)
         {
-            return BadRequest(new {status = "error", message = $"error getting requests: {ex}"});
+            return BadRequest(new { status = "error", message = $"error getting requests: {ex}" });
         }
     }
 
@@ -45,11 +42,12 @@ public class FriendshipController(IFriendshipService friendshipService) : Contro
     {
         try
         {
-            return Ok(await friendshipService.GetFriendRecommendationsAsync(CurrentUserId));
+            var result = await friendshipService.GetFriendRecommendationsAsync(CurrentUserId);
+            return Ok(new { status = "success", data = result });
         }
         catch (Exception ex)
         {
-            return BadRequest(new {status = "error", message = $"error getting recommendations: {ex}"});
+            return BadRequest(new { status = "error", message = $"error getting recommendations: {ex}" });
         }
     }
 
@@ -58,11 +56,12 @@ public class FriendshipController(IFriendshipService friendshipService) : Contro
     {
         try
         {
-            return Ok(await friendshipService.SendFriendRequestAsync(CurrentUserId, dto.UserId));
-        } 
+            var result = await friendshipService.SendFriendRequestAsync(CurrentUserId, dto.UserId);
+            return Ok(new { status = "success", data = result });
+        }
         catch (Exception ex)
         {
-            return BadRequest(new {status = "error", message = $"error sending request: {ex}"});
+            return BadRequest(new { status = "error", message = $"error sending request: {ex}" });
         }
     }
 
@@ -71,11 +70,12 @@ public class FriendshipController(IFriendshipService friendshipService) : Contro
     {
         try
         {
-            return Ok(await friendshipService.AcceptFriendRequestAsync(CurrentUserId, dto.UserId));
-        } 
+            var result = await friendshipService.AcceptFriendRequestAsync(CurrentUserId, dto.UserId);
+            return Ok(new { status = "success", data = result });
+        }
         catch (Exception ex)
         {
-            return BadRequest(new {status = "error", message = $"error accepting request: {ex}"});
+            return BadRequest(new { status = "error", message = $"error accepting request: {ex}" });
         }
     }
 
@@ -84,11 +84,12 @@ public class FriendshipController(IFriendshipService friendshipService) : Contro
     {
         try
         {
-            return Ok(await friendshipService.DeleteFriendRelationshipAsync(CurrentUserId, dto.UserId));
+            var result = await friendshipService.DeleteFriendRelationshipAsync(CurrentUserId, dto.UserId);
+            return Ok(new { status = "success", data = result });
         }
         catch (Exception ex)
         {
-            return BadRequest(new {status = "error", message = $"error deletting request: {ex}"});
+            return BadRequest(new { status = "error", message = $"error deletting request: {ex}" });
         }
     }
 
@@ -97,11 +98,12 @@ public class FriendshipController(IFriendshipService friendshipService) : Contro
     {
         try
         {
-            return Ok(await friendshipService.WhichFriendshipAsync(CurrentUserId, id));
-        } 
+            var result = await friendshipService.WhichFriendshipAsync(CurrentUserId, id);
+            return Ok(new { status = "success", data = result });
+        }
         catch (Exception ex)
         {
-            return BadRequest(new {status = "error", message = $"error searching friendship status: {ex}"});    
+            return BadRequest(new { status = "error", message = $"error searching friendship status: {ex}" });
         }
     }
 }

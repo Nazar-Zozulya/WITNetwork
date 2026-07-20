@@ -34,10 +34,8 @@ public class MappingProfile : AutoMapper.Profile
             .ForCtorParam(nameof(AuthorDto.Avatar),
                 opt => opt.MapFrom(src => src.Profile != null ? src.Profile.Avatar : null));
 
-        CreateMap<Message, MessageDto>();
-
-
         CreateMap<UserProfile, UserToPostDto>();
+        CreateMap<UserProfile, UserToChatDto>();
 
 
         CreateMap<UserProfile, UserResponseDto>();
@@ -60,5 +58,10 @@ public class MappingProfile : AutoMapper.Profile
         // ALBUM
         CreateMap<Album, AlbumResponseDto>();
         CreateMap<AlbumImage, AlbumImageDto>();
+
+
+        // CHAT
+        CreateMap<Chat, ChatResponseDto>();
+        CreateMap<Message, MessageDto>();
     }
 }

@@ -6,16 +6,22 @@ using Microsoft.AspNetCore.SignalR;
 using WITnetwork.Data;
 using Microsoft.EntityFrameworkCore;
 using AutoMapper;
+using WITnetwork.Services;
+using WITnetwork.Dtos;
+
+namespace WITnetwork.Hubs;
 
 [Authorize]
-public class ChatHub(NetworkDBContext context, IMapper mapper, IChatService chatService) : Hub
+public class ChatHub(NetworkDBContext context, IMapper mapper, IChatService chatService, IHubContext<GlobalHub> globalHub) : Hub
 {
-    public void JoinChat(long chatId)
+    [HubMethodName("chat:join")]
+    public async Task EnterChat(long chatId)
     {
-        Groups.AddToGroupAsync(Context.ConnectionId, $"chat_{chatId}");
+        await Groups.AddToGroupAsync(Context.ConnectionId, $"chat_{chatId}");
         System.Console.WriteLine(123123);
     }
 
+    [HubMethodName("chat:leave")]
     public async Task LeaveChat(long chatId)
     {
         await Groups.RemoveFromGroupAsync(
@@ -27,28 +33,28 @@ public class ChatHub(NetworkDBContext context, IMapper mapper, IChatService chat
             .SendAsync("chat:user_left", Context.UserIdentifier);
     }
 
-    public async Task<ChatResponseDto> AddUsersToChat(AddUsersRequestDto request)
-    {
-        var adminId = long.Parse(Context.UserIdentifier!);
+    // public async Task<ChatResponseDto> AddUsersToChat(AddUsersRequestDto request)
+    // {
+    //     var adminId = long.Parse(Context.UserIdentifier!);
 
-        var updatedChat = await chatService.AddUsersToChatAsync(
-            request.ChatId,
-            adminId,
-            request.UserIds
-        );
+    //     var updatedChat = await chatService.AddUsersToChatAsync(
+    //         request.ChatId,
+    //         adminId,
+    //         request.UserIds
+    //     );
 
-        var chatDto = mapper.Map<ChatResponseDto>(updatedChat);
+    //     var chatDto = mapper.Map<ChatResponseDto>(updatedChat);
 
-        await Clients.OthersInGroup($"chat_{request.ChatId}")
-            .SendAsync("chat:updated", chatDto);
+    //     await Clients.OthersInGroup($"chat_{request.ChatId}")
+    //         .SendAsync("chat:updated", chatDto);
 
-        return chatDto;
-    }
+    //     return chatDto;
+    // }
 
 
 
-    
-    public async void SendMessage(Guid chatId, string text)
+    [HubMethodName("message:send")]
+    public async Task SendMessage(SendMessageDto dto)
     {
         var senderId = Context.User.FindFirstValue(ClaimTypes.NameIdentifier);
 
@@ -59,33 +65,58 @@ public class ChatHub(NetworkDBContext context, IMapper mapper, IChatService chat
 
         if (sender == null) return;
 
-        var NewMessage = context.Messages.Add(new Message { Text = text, Sender = sender, SenderId = sender.Id });
+        var NewMessage = context.Messages.Add(new Message 
+            { 
+                Text = dto.Text, 
+                Sender = sender, 
+                SenderId = sender.Id,
+                ChatId = dto.ChatId
+            });
 
         await context.SaveChangesAsync();
 
+
+
         var messageDto = mapper.Map<MessageDto>(NewMessage.Entity);
 
-        await Clients.Group($"chat_{chatId.ToString()}").SendAsync("message:new", messageDto);
+        await Clients.Group($"chat_{dto.ChatId}").SendAsync("message:new", messageDto);
+
+        var currentChat = await context.Chats
+            .Include(c => c.Users)
+            .FirstOrDefaultAsync(c => c.Id == dto.ChatId);
+
+        // if (currentChat == null) return;
+
+        foreach (var user in currentChat.Users)
+        {
+            if (user.Id != dto.SenderId) 
+            await globalHub.Clients.Group($"user_{user.Id}")
+                .SendAsync("global-message:new", messageDto);
+        }
+
     }
 
-    public async void SeeMessage(long MessageId)
+    [HubMethodName("message:see")]
+    public async Task SeeMessage(SeeMessageDto dto)
     {
         var readerId = Context.User.FindFirstValue(ClaimTypes.NameIdentifier);
 
         if (readerId == null) return;
 
         var reader = await context.Users
-            .FirstOrDefaultAsync(x => x.Id == long.Parse(readerId));
+            .FirstOrDefaultAsync(x => x.Id == dto.ReaderId);
 
         if (reader == null) return;
 
-        var message = await context.Messages.Include(m => m.Readers).FirstOrDefaultAsync(message => message.Id == MessageId);
+        var message = await context.Messages
+            .Include(m => m.Readers)
+            .FirstOrDefaultAsync(message => message.Id == dto.MessageId);
 
-        if (!message.Readers.Any(u => u.Id == reader.Id))
-        {
-            message.Readers.Add(reader);
-            await context.SaveChangesAsync();
-        }
+        // if (!message.Readers.Any(u => u.Id == reader.Id))
+        // {
+        message.Readers.Add(reader);
+        await context.SaveChangesAsync();
+        // }
 
         if (message == null) return;
 
