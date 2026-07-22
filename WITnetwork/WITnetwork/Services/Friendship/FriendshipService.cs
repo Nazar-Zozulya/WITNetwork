@@ -23,11 +23,14 @@ public class FriendshipService(NetworkDBContext context, IMapper mapper) : IFrie
 
             var friends = friendships.Select(f =>
                 f.FromId == userId ? f.To : f.From);
-
-            if (friends.IsNullOrEmpty())
+            if (!friends.Any())
             {
-                throw new Exception("friends not found");   
+                return Enumerable.Empty<UserWithoutIncludes>();
             }
+            // if (friends.IsNullOrEmpty())
+            // {
+            //     throw new Exception("friends not found");   
+            // }
 
             var mappedFriends = mapper.Map<IEnumerable<UserWithoutIncludes>>(friends);
 

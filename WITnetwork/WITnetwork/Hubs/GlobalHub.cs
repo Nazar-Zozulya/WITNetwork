@@ -132,11 +132,8 @@ public class GlobalHub(
     {
         var allFriends = await friendService.GetFriendshipsAsync(userId);
 
-        if (allFriends == null)
-        {
-            return;
-        }
-
+        // if (allFriends != null)
+        // {
         var usersStatuses = allFriends
             .Select(friend => new
             {
@@ -151,5 +148,7 @@ public class GlobalHub(
             "user:all-statuses",
             usersStatuses
         );
+        // }
+
     }
 }

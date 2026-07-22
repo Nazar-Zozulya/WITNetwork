@@ -10,8 +10,10 @@ public interface IPostService
     Task<PostResponseDto> GetPostByIdAsync(long postId);
 
 
-    Task<IEnumerable<PostResponseDto>> GetAllPostsByUserId(long userId, int page, int size);
+    Task<IEnumerable<PostResponseDto>> GetAllPostsByUserId(long userId,
+    int page, int size
+    );
 
-    Task<string> DeletePostAsync(long postId, long userId);
+    Task<PostResponseDto> DeletePostAsync(long postId, long userId);
 
 }

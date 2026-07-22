@@ -109,24 +109,32 @@ public class PostService(NetworkDBContext context, IMapper mapper, IPhotoService
         return mapper.Map<PostResponseDto>(post);
     }
 
-    public async Task<string> DeletePostAsync(long postId, long userId)
+    public async Task<PostResponseDto> DeletePostAsync(long postId, long userId)
     {
-        var post = await context.Posts.Where(p => p.Id == postId)
-            .ExecuteDeleteAsync();
+        var post = await context.Posts
+            .FirstOrDefaultAsync(p => p.Id == postId);
 
+        if (post == null)
+            throw new Exception("post not found");
 
-        // if (post == null) return "post not found";
+        if (post.AuthorId != userId)
+            throw new Exception("It's not your post");
 
-        // if (post.AuthorId )
-        // {
-        //     return "its not your post";
-        // }
+        var mappedDeletedPost = mapper.Map<PostResponseDto>(post);
+        
+        context.Posts.Remove(post);
 
+        await context.SaveChangesAsync();
 
-        return "post deleted";
+        return mappedDeletedPost;
     }
 
-    public async Task<IEnumerable<PostResponseDto>> GetAllPostsByUserId (long userId, int page, int size)
+    public async Task<IEnumerable<PostResponseDto>> GetAllPostsByUserId 
+    (
+        long userId,
+        int page, 
+        int size
+    )
     {
         try
         {

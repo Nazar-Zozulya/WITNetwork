@@ -56,24 +56,29 @@ public class PostsController(IPostService postService) : ControllerBase
     [HttpGet("all/{id}")]
     public async Task<IActionResult> GetAllPostsByUserId (
         [FromQuery] int page,
-        [FromQuery] int size
+        [FromQuery] int size,
+        long id
     )
     {
         try
         {
-            var authorIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            // var authorIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            if (authorIdString == null)
+            // if (authorIdString == null)
+            // {
+            //     return BadRequest(new
+            //     {
+            //         status = "error",
+            //         message = $"error getting all posts from user: user not found"
+            //     });
+            // }
+
+            var posts = await postService.GetAllPostsByUserId(id, page, size);
+            return Ok(new
             {
-                return BadRequest(new
-                {
-                    status = "error",
-                    message = $"error getting all posts from user: user not found"
-                });
-            }
-
-            var posts = await postService.GetAllPostsByUserId(long.Parse(authorIdString),page, size);
-            return Ok();
+                status = "success",
+                data = posts
+            });
         } 
         catch (Exception ex)
         {
@@ -95,22 +100,22 @@ public class PostsController(IPostService postService) : ControllerBase
         return Ok(post);
     }
     
-    [HttpDelete("/delete")]
-    [Authorize]
-    public async Task<IActionResult> Delete([FromBody] long id)
+    [HttpDelete("delete")]
+    // [Authorize]
+    public async Task<IActionResult> Delete([FromBody] DeletePostDto dto)
     {
-        var userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        // var userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
         try
         {
-            var result = await postService.DeletePostAsync(id, userId);
-            if (result == null) return NotFound();
-            return NoContent();
+            var result = await postService.DeletePostAsync(dto.Id, dto.UserId);
+            if (result == null) return NotFound(new {status = "error", message = "deleting post error"});
+            return Ok(new {status = "success", data = result});
         }
-        catch (UnauthorizedAccessException ex)
+        catch (Exception ex)
         {
             Console.WriteLine(ex);
-            return Forbid();
+            return BadRequest(new {status = "error", message = $"Error deleting post: {ex.Message}"});
         }
     }
 }
