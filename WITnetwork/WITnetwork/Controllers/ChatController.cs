@@ -29,16 +29,33 @@ public class ChatController (NetworkDBContext context, IChatService chatService)
     }
 
     [HttpGet("chats/{id}")]
-    public async Task<IActionResult> GetIndividualChats(long id)
+    public async Task<IActionResult> GetIndividualChats(long id, 
+        [FromQuery] int page,
+        [FromQuery] int size
+    )
     {
         try
         {
-            var result = await chatService.GetIndividualChats(id);
+            var result = await chatService.GetIndividualChats(id, page, size);
             return Ok(new { status = "success", data = result });
         }
         catch (Exception ex)
         {
             return BadRequest(new { status = "error", message = $"Error getting individual chats: {ex.Message}" });
+        }
+    }
+
+    [HttpGet("messages/{id}")]
+    public async Task<IActionResult> GetMessagesFromChat(long id, [FromQuery] int page,[FromQuery] int size)
+    {
+        try
+        {
+            var result = await chatService.GetMessagesFromChat(id, page, size);
+            return Ok(new { status = "success", data = result });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { status = "error", message = $"Error getting messages from chat: {ex.Message}" });
         }
     }
 }

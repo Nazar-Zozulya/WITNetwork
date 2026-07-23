@@ -9,7 +9,7 @@ using WITnetwork.Models;
 
 public class FriendshipService(NetworkDBContext context, IMapper mapper) : IFriendshipService
 {
-    public async Task<IEnumerable<UserWithoutIncludes>> GetFriendshipsAsync(long userId)
+    public async Task<IEnumerable<UserWithoutIncludes>> GetFriendshipsAsync(long userId, int page, int size)
     {   
         try
         {      
@@ -18,6 +18,8 @@ public class FriendshipService(NetworkDBContext context, IMapper mapper) : IFrie
                 .Include(f => f.To)
                 .Where(f => f.Status == true && 
                     (f.FromId == userId || f.ToId == userId))
+                .Skip((page - 1) * size)
+                .Take(size)
                 .ToListAsync();
 
 
@@ -42,7 +44,7 @@ public class FriendshipService(NetworkDBContext context, IMapper mapper) : IFrie
         }
     }
 
-    public async Task<IEnumerable<UserWithoutIncludes>> GetFriendRequestsAsync(long userId)
+    public async Task<IEnumerable<UserWithoutIncludes>> GetFriendRequestsAsync(long userId, int page, int size)
     {   
         try {
             var friendships = await context.Friendships
@@ -50,6 +52,8 @@ public class FriendshipService(NetworkDBContext context, IMapper mapper) : IFrie
                 .Include(f => f.To)
                 .Where(f => f.Status == false && 
                     (f.ToId == userId))
+                .Skip((page - 1) * size)
+                .Take(size)
                 .ToListAsync();
 
 
@@ -58,8 +62,7 @@ public class FriendshipService(NetworkDBContext context, IMapper mapper) : IFrie
 
             if (friends.IsNullOrEmpty())
             {
-                throw new Exception("requests not found");
-                
+                return Enumerable.Empty<UserWithoutIncludes>();
             }
             
             var mappedFriends = mapper.Map<IEnumerable<UserWithoutIncludes>>(friends);
@@ -73,7 +76,7 @@ public class FriendshipService(NetworkDBContext context, IMapper mapper) : IFrie
 
     }
 
-    public async Task<IEnumerable<UserWithoutIncludes>> GetFriendRecommendationsAsync(long userId)
+    public async Task<IEnumerable<UserWithoutIncludes>> GetFriendRecommendationsAsync(long userId, int page, int size)
     {   
         try {
             // var user = await context.Users
@@ -88,6 +91,8 @@ public class FriendshipService(NetworkDBContext context, IMapper mapper) : IFrie
                 .Where(u => u.Id != userId &&
                     !u.FriendshipsFrom.Any(f => f.ToId == userId) &&
                     !u.FriendshipsTo.Any(f => f.FromId == userId))
+                .Skip((page - 1) * size)
+                .Take(size)
                 .ToListAsync();
 
             // var friendships = await context.Friendships
@@ -102,7 +107,7 @@ public class FriendshipService(NetworkDBContext context, IMapper mapper) : IFrie
 
             if (users.IsNullOrEmpty())
             {
-                throw new Exception("recomendations not found");
+                return Enumerable.Empty<UserWithoutIncludes>();
             }
 
             var mappedUsers = mapper.Map<IEnumerable<UserWithoutIncludes>>(users);

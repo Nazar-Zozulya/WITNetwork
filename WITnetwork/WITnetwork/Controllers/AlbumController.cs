@@ -112,11 +112,13 @@ public class AlbumController(IAlbumService albumService) : ControllerBase
     }
 
     [HttpGet("")]
-    public async Task<IActionResult> GetAllAlbums()
+    public async Task<IActionResult> GetAllAlbums(
+        [FromQuery] int page,
+        [FromQuery] int size)
     {
         try
         {
-            var result = await albumService.GetAllAlbumsAsync(CurrentUserId);
+            var result = await albumService.GetAllAlbumsAsync(CurrentUserId, page, size);
             return Ok(new { status = "success", data = result });
         }
         catch (Exception ex)

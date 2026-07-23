@@ -188,7 +188,7 @@ public class AlbumService(NetworkDBContext context, IMapper mapper, IPhotoServic
         }
     }
 
-    public async Task<IEnumerable<AlbumResponseDto>> GetAllAlbumsAsync(long userId)
+    public async Task<IEnumerable<AlbumResponseDto>> GetAllAlbumsAsync(long userId, int page, int size)
     {
         try
         {
@@ -198,6 +198,8 @@ public class AlbumService(NetworkDBContext context, IMapper mapper, IPhotoServic
             var albums = await context.Albums
                 .Include(a => a.Images)
                 .Where(a => a.ProfileId == profile.Id)
+                .Skip((page - 1) * size)
+                .Take(size)
                 .ToListAsync();
 
             var mappedAlbums = mapper.Map<IEnumerable<AlbumResponseDto>>(albums);

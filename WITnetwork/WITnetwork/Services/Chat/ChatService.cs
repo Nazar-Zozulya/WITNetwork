@@ -14,8 +14,8 @@ public class ChatService(NetworkDBContext context, IMapper mapper) : IChatServic
         var findChat = await context.Chats
             .Include(c => c.Admin)
             .Include(c => c.Users)
-            .Include(c => c.Messages)
-                .ThenInclude(m => m.Sender)
+            // .Include(c => c.Messages)
+                // .ThenInclude(m => m.Sender)
             .Include(c => c.Messages)
                 .ThenInclude(m => m.Readers)
             .Include(c => c.Avatar)
@@ -93,7 +93,7 @@ public class ChatService(NetworkDBContext context, IMapper mapper) : IChatServic
         return mappedNewChat;
     }
 
-    public async Task<IEnumerable<ChatResponseDto>> GetIndividualChats(long userId)
+    public async Task<IEnumerable<ChatResponseDto>> GetIndividualChats(long userId, int page, int size)
     {
         var allChats = await context.Chats
             .Where(c =>
@@ -105,6 +105,8 @@ public class ChatService(NetworkDBContext context, IMapper mapper) : IChatServic
                 .OrderByDescending(m => m.CreatedAt)
                 .Take(1))
                 .ThenInclude(m => m.Readers)
+            .Skip((page - 1) * size)
+            .Take(size)
             .ToListAsync();
             
         var mappedAllChats = mapper.Map<IEnumerable<ChatResponseDto>>(allChats);
@@ -141,5 +143,29 @@ public class ChatService(NetworkDBContext context, IMapper mapper) : IChatServic
         var mappedChat = mapper.Map<ChatResponseDto>(chat);
 
         return mappedChat;
+    }
+
+    public async Task<IEnumerable<MessageDto>> GetMessagesFromChat (long chatId, int page, int size)
+    {
+        try
+        {
+            var chat = await context.Chats
+                .Include(c => c.Messages
+                    .OrderByDescending(m => m.CreatedAt)
+                    .Skip((page - 1) * size)
+                    .Take(size))
+                    .ThenInclude(m => m.Readers)
+                .FirstOrDefaultAsync(c => c.Id == chatId);
+            
+            if (chat == null) throw new Exception("chat not found");
+
+            var mappedMessages = mapper.Map<IEnumerable<MessageDto>>(chat.Messages.OrderBy(m => m.CreatedAt));
+
+            return mappedMessages;
+        } 
+        catch (Exception ex)
+        {
+            throw new Exception(ex.ToString());
+        }
     }
 }

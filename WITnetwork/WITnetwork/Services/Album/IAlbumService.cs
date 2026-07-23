@@ -20,5 +20,5 @@ public interface IAlbumService
 
     Task<AlbumImageDto> ToggleShownAlbumAsync(long albumId, long imageId);
 
-    Task<IEnumerable<AlbumResponseDto>> GetAllAlbumsAsync(long userId);
+    Task<IEnumerable<AlbumResponseDto>> GetAllAlbumsAsync(long userId, int page, int size);
 }

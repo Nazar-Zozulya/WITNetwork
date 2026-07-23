@@ -10,11 +10,11 @@ public class FriendshipController(IFriendshipService friendshipService) : Contro
     private long CurrentUserId => long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
     [HttpGet("friends")]
-    public async Task<IActionResult> GetAllFriend()
+    public async Task<IActionResult> GetAllFriend([FromQuery] int page, [FromQuery] int size)
     {
         try
         {
-            var result = await friendshipService.GetFriendshipsAsync(CurrentUserId);
+            var result = await friendshipService.GetFriendshipsAsync(CurrentUserId, page, size);
             return Ok(new { status = "success", data = result });
         }
         catch (Exception ex)
@@ -24,11 +24,11 @@ public class FriendshipController(IFriendshipService friendshipService) : Contro
     }
 
     [HttpGet("requests")]
-    public async Task<IActionResult> GetAllFriendRequests()
+    public async Task<IActionResult> GetAllFriendRequests([FromQuery] int page, [FromQuery] int size)
     {
         try
         {
-            var result = await friendshipService.GetFriendRequestsAsync(CurrentUserId);
+            var result = await friendshipService.GetFriendRequestsAsync(CurrentUserId, page, size);
             return Ok(new { status = "success", data = result });
         }
         catch (Exception ex)
@@ -38,11 +38,11 @@ public class FriendshipController(IFriendshipService friendshipService) : Contro
     }
 
     [HttpGet("recommendations")]
-    public async Task<IActionResult> GetAllFriendRecommendations()
+    public async Task<IActionResult> GetAllFriendRecommendations([FromQuery] int page, [FromQuery] int size)
     {
         try
         {
-            var result = await friendshipService.GetFriendRecommendationsAsync(CurrentUserId);
+            var result = await friendshipService.GetFriendRecommendationsAsync(CurrentUserId, page, size);
             return Ok(new { status = "success", data = result });
         }
         catch (Exception ex)

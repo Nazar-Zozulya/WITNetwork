@@ -3,6 +3,7 @@ using System.Security.Claims;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 using WITnetwork.Data;
 using WITnetwork.Services;
 
@@ -63,7 +64,13 @@ public class GlobalHub(
                 return connections;
             });
 
-        var allChats = await chatService.GetIndividualChats(userId);
+        var allChats = await context.Chats
+            .Include(c => c.Users)
+            .Where(c =>
+                !c.IsGroup &&
+                c.Users.Any(u => u.Id == userId)
+            )
+            .ToListAsync();
 
         if (allChats == null)
         {
@@ -107,7 +114,13 @@ public class GlobalHub(
             }
         }
 
-        var allChats = await chatService.GetIndividualChats(userId);
+        var allChats = await context.Chats
+            .Include(c => c.Users)
+            .Where(c =>
+                !c.IsGroup &&
+                c.Users.Any(u => u.Id == userId)
+            )
+            .ToListAsync();
 
         if (allChats == null)
         {
@@ -130,7 +143,16 @@ public class GlobalHub(
     [HubMethodName("user:get-statuses")]
     public async Task GetStatuses(long userId)
     {
-        var allFriends = await friendService.GetFriendshipsAsync(userId);
+         var friendships = await context.Friendships
+            .Include(f => f.From)
+            .Include(f => f.To)
+            .Where(f => f.Status == true && 
+                (f.FromId == userId || f.ToId == userId))
+            .ToListAsync();
+
+
+        var allFriends = friendships.Select(f =>
+            f.FromId == userId ? f.To : f.From);
 
         // if (allFriends != null)
         // {
