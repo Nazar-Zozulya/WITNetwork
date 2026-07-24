@@ -28,6 +28,19 @@ public class ChatController (NetworkDBContext context, IChatService chatService)
         }
     }
 
+    [HttpGet("get-chat/{id}")]
+    public async Task<IActionResult> CreateChat(long id) {
+        try
+        {
+            var result = await chatService.GetChatById(id);
+            return Ok(new { status = "success", data = result });
+        } 
+        catch (Exception ex)
+        {
+            return BadRequest(new { status = "error", message = $"Error getting chat by id: {ex.Message}" });
+        }
+    }
+
     [HttpGet("chats/{id}")]
     public async Task<IActionResult> GetIndividualChats(long id, 
         [FromQuery] int page,
@@ -56,6 +69,37 @@ public class ChatController (NetworkDBContext context, IChatService chatService)
         catch (Exception ex)
         {
             return BadRequest(new { status = "error", message = $"Error getting messages from chat: {ex.Message}" });
+        }
+    }
+
+    [HttpGet("groups/{id}")]
+    public async Task<IActionResult> GetGroups(long id, 
+        [FromQuery] int page,
+        [FromQuery] int size
+    )
+    {
+        try
+        {
+            var result = await chatService.GetGroups(id, page, size);
+            return Ok(new { status = "success", data = result });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { status = "error", message = $"Error getting groups: {ex.Message}" });
+        }
+    }
+
+    [HttpPost("group/create")]
+    public async Task<IActionResult> CreateGroup([FromBody] CreateGroupDto dto)
+    {
+        try
+        {
+            var result = await chatService.CreateGroup(dto);
+            return Ok(new { status = "success", data = result });
+        } 
+        catch (Exception ex)
+        {
+            return BadRequest(new { status = "error", message = $"Error creating group: {ex.Message}" });
         }
     }
 }

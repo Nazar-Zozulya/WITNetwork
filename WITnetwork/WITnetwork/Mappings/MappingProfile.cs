@@ -44,14 +44,14 @@ public class MappingProfile : AutoMapper.Profile
             .ForCtorParam(nameof(UserWithoutIncludes.Id), opt => opt.MapFrom(s => s.Id))
             .ForCtorParam(nameof(UserWithoutIncludes.UserName), opt => opt.MapFrom(s => s.UserName))
             .ForCtorParam(nameof(UserWithoutIncludes.Email), opt => opt.MapFrom(s => s.Email))
-            .ForCtorParam(nameof(UserWithoutIncludes.PasswordHash), opt => opt.MapFrom(s => s.PasswordHash))
             .ForCtorParam(nameof(UserWithoutIncludes.FirstName), opt => opt.MapFrom(s => s.FirstName))
             .ForCtorParam(nameof(UserWithoutIncludes.LastName), opt => opt.MapFrom(s => s.LastName))
             // .ForCtorParam(nameof(UserWithoutIncludes.IsActive), opt => opt.MapFrom(s => s.LockoutEnabled))
             // .ForCtorParam(nameof(UserWithoutIncludes.IsStaff), opt => opt.MapFrom(s => false))
             // .ForCtorParam(nameof(UserWithoutIncludes.IsSuperUser), opt => opt.MapFrom(s => false))
             .ForCtorParam(nameof(UserWithoutIncludes.LastLoginAt), opt => opt.MapFrom(s => s.LastLoginAt))
-            .ForCtorParam(nameof(UserWithoutIncludes.DateJoined), opt => opt.MapFrom(s => s.DateJoined));
+            .ForCtorParam(nameof(UserWithoutIncludes.DateJoined), opt => opt.MapFrom(s => s.DateJoined))
+            .ReverseMap();
 
         CreateMap<WITnetwork.Models.Profile, ProfileDto>();
 

@@ -17,4 +17,6 @@ public class AlbumImage
     public Album? Album { get; set; }
 
     public long AlbumId { get; set; }
+
+    public Profile? Profile { get; set; }
 }

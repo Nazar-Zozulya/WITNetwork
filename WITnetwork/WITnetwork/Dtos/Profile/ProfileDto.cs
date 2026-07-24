@@ -7,9 +7,10 @@ public record ProfileDto (
     [property: JsonPropertyName("birth_date")] DateTimeOffset BirthDate,
     // [property: JsonPropertyName("user")] UserResponseDto User,
     [property: JsonPropertyName("user_id")] long UserId,
-    [property: JsonPropertyName("avatar")] string? Avatar,
-    [property: JsonPropertyName("pseudonym")] string? Pseudonym
-    // [property: JsonPropertyName("albums")] ICollection<AlbumResponseDto>? Albums
+    [property: JsonPropertyName("avatar")] AlbumImageDto? Avatar,
+    [property: JsonPropertyName("avatarId")] long? AvatarId,
+    [property: JsonPropertyName("pseudonym")] string? Pseudonym,
+    [property: JsonPropertyName("albums")] ICollection<AlbumResponseDto>? Albums
 
 );
 

@@ -51,9 +51,27 @@ public class AuthService(NetworkDBContext context, IMapper mapper, UserManager<U
                 IsTextSignature = false,
                 UserId = NewUser.Id
             };
-            context.Profiles.Add(newProfile);
 
+            context.Profiles.Add(newProfile);
+            
             await context.SaveChangesAsync();
+
+            var newMyAlbum = new Album
+            {
+                IsMyPhotoAlbum = true,
+                Name = "",
+                Theme = "",
+                Year = DateTimeOffset.UtcNow.Year,
+                ProfileId = newProfile.Id
+                
+            };
+
+            context.Albums.Add(newMyAlbum);
+            await context.SaveChangesAsync();
+
+
+
+
 
             // повертаю токен
             return tokenManager.GenerateToken(NewUser);

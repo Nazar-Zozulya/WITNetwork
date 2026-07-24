@@ -8,7 +8,7 @@ using WITnetwork.Models;
 
 namespace WITnetwork.Services;
 
-public class ChatService(NetworkDBContext context, IMapper mapper) : IChatService
+public class ChatService(NetworkDBContext context, IMapper mapper, IPhotoService photoService) : IChatService
 {
     public async Task<ChatResponseDto> GetChat(long userId, long anotherUserId) {
         var findChat = await context.Chats
@@ -18,7 +18,6 @@ public class ChatService(NetworkDBContext context, IMapper mapper) : IChatServic
                 // .ThenInclude(m => m.Sender)
             .Include(c => c.Messages)
                 .ThenInclude(m => m.Readers)
-            .Include(c => c.Avatar)
             .FirstOrDefaultAsync(c =>
                 !c.IsGroup &&
                 (
@@ -70,7 +69,6 @@ public class ChatService(NetworkDBContext context, IMapper mapper) : IChatServic
                 .ThenInclude(m => m.Sender)
             .Include(c => c.Messages)
                 .ThenInclude(m => m.Readers)
-            .Include(c => c.Avatar)
             .FirstOrDefaultAsync(c =>
                 !c.IsGroup &&
                 (
@@ -91,6 +89,22 @@ public class ChatService(NetworkDBContext context, IMapper mapper) : IChatServic
         var mappedNewChat = mapper.Map<ChatResponseDto>(newChat);
 
         return mappedNewChat;
+    }
+
+    public async Task<ChatResponseDto> GetChatById(long chatId)
+    {
+        try
+        {
+            var chat = await context.Chats.FirstOrDefaultAsync(c => c.Id == chatId) ?? throw new Exception("chat not found");
+
+            var mappedChat = mapper.Map<ChatResponseDto>(chat);
+
+            return mappedChat;
+        }
+        catch (Exception ex)
+        {
+            throw new Exception(ex.ToString());
+        }
     }
 
     public async Task<IEnumerable<ChatResponseDto>> GetIndividualChats(long userId, int page, int size)
@@ -163,6 +177,80 @@ public class ChatService(NetworkDBContext context, IMapper mapper) : IChatServic
 
             return mappedMessages;
         } 
+        catch (Exception ex)
+        {
+            throw new Exception(ex.ToString());
+        }
+    }
+
+    public async Task<IEnumerable<ChatResponseDto>> GetGroups(long userId, int page, int size)
+    {
+        try
+        {
+            var allGroups = await context.Chats.Where(c =>
+                    c.IsGroup &&
+                    c.Users.Any(u => u.Id == userId)
+                )
+                .Include(c => c.Users)
+                .Include(c => c.Messages
+                    .OrderByDescending(m => m.CreatedAt)
+                    .Take(1))
+                    .ThenInclude(m => m.Readers)
+                .Skip((page - 1) * size)
+                .Take(size)
+                .ToListAsync();
+            
+            var mappedAllGroups = mapper.Map<IEnumerable<ChatResponseDto>>(allGroups);
+
+            return mappedAllGroups;
+        }
+        catch (Exception ex)
+        {
+            throw new Exception(ex.ToString());
+        }
+    }
+
+    public async Task<ChatResponseDto> CreateGroup(CreateGroupDto dto)
+    {
+        try
+        {
+            var ids = dto.Users.Select(x => x.Id).ToList();
+
+            var modeledUsers = await context.Users
+                .Where(x => ids.Contains(x.Id))
+                .ToListAsync() ?? throw new Exception("users not given for group");
+
+
+            var newGroup = new Chat
+            {
+                Users = modeledUsers,
+                AdminId = dto.AdminId,
+                IsGroup = true,
+                Name = dto.Name
+            };
+
+            var admin = await context.Users.FirstOrDefaultAsync(u => u.Id == dto.AdminId) ?? throw new Exception("admin not found");
+
+            newGroup.Users.Add(admin);
+
+            context.Chats.Add(newGroup);
+
+            await context.SaveChangesAsync();
+
+            if (dto.Avatar != null)
+            {
+                var uploadedImage = await photoService.AddPhotoAsync(dto.Avatar);
+
+                newGroup.AvatarUrl = uploadedImage.SecureUrl.AbsoluteUri;
+                newGroup.AvatarPublicId = uploadedImage.PublicId;
+
+                await context.SaveChangesAsync();
+            }
+
+            ChatResponseDto mappedGroup = mapper.Map<ChatResponseDto>(newGroup);
+
+            return mappedGroup;
+        }
         catch (Exception ex)
         {
             throw new Exception(ex.ToString());

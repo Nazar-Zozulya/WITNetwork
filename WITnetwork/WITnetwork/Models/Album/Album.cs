@@ -21,6 +21,8 @@ public class Album
 
     public long ProfileId { get; set; }
 
+    public bool IsMyPhotoAlbum { get; set; } = false;
+
 
     public ICollection<AlbumImage> Images { get; set; } = new List<AlbumImage>();
 }

@@ -14,7 +14,9 @@ public class Profile
     
     public long UserId { get; set; }
 
-    public string? Avatar { get; set; }
+    public AlbumImage? Avatar { get; set; }
+
+    public long? AvatarId { get; set; }
 
     public string? Pseudonym { get; set; }
 

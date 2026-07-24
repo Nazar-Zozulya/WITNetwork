@@ -43,7 +43,10 @@ public class UserService(IMapper mapper, NetworkDBContext context) : IUserServic
         {
             var user = await context.Users
                 .Include(u => u.Profile)
-                    .ThenInclude(p => p.Albums)
+                    .ThenInclude(p => p.Albums.Where(a => a.IsMyPhotoAlbum))
+                .Include(u => u.Profile)
+                    .ThenInclude(p => p.Avatar)
+
                 .FirstOrDefaultAsync(u => u.Id == id);
 
             if (user == null)

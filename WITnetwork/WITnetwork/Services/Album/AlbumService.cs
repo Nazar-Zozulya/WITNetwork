@@ -197,7 +197,7 @@ public class AlbumService(NetworkDBContext context, IMapper mapper, IPhotoServic
             
             var albums = await context.Albums
                 .Include(a => a.Images)
-                .Where(a => a.ProfileId == profile.Id)
+                .Where(a => a.ProfileId == profile.Id && a.IsMyPhotoAlbum == false)
                 .Skip((page - 1) * size)
                 .Take(size)
                 .ToListAsync();

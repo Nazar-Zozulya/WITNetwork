@@ -12,8 +12,8 @@ using WITnetwork.Data;
 namespace WITnetwork.Migrations
 {
     [DbContext(typeof(NetworkDBContext))]
-    [Migration("20260714125042_AddAlbum")]
-    partial class AddAlbum
+    [Migration("20260724134209_fix3")]
+    partial class fix3
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -93,6 +93,21 @@ namespace WITnetwork.Migrations
                     b.HasIndex("SenderId");
 
                     b.ToTable("Messages");
+                });
+
+            modelBuilder.Entity("MessageUserProfile", b =>
+                {
+                    b.Property<long>("MessageId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("ReadersId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("MessageId", "ReadersId");
+
+                    b.HasIndex("ReadersId");
+
+                    b.ToTable("MessageReaders", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<long>", b =>
@@ -323,8 +338,11 @@ namespace WITnetwork.Migrations
                     b.Property<long>("AdminId")
                         .HasColumnType("bigint");
 
-                    b.Property<long?>("AvatarId")
-                        .HasColumnType("bigint");
+                    b.Property<string>("AvatarPublicId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("AvatarUrl")
+                        .HasColumnType("text");
 
                     b.Property<bool>("IsGroup")
                         .HasColumnType("boolean");
@@ -335,8 +353,6 @@ namespace WITnetwork.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("AdminId");
-
-                    b.HasIndex("AvatarId");
 
                     b.ToTable("Chats");
                 });
@@ -464,10 +480,10 @@ namespace WITnetwork.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
-                    b.Property<string>("Avatar")
-                        .HasColumnType("text");
+                    b.Property<long?>("AvatarId")
+                        .HasColumnType("bigint");
 
-                    b.Property<DateTimeOffset>("BirthDate")
+                    b.Property<DateTimeOffset?>("BirthDate")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("IsImageSignature")
@@ -486,6 +502,9 @@ namespace WITnetwork.Migrations
                         .HasColumnType("bigint");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AvatarId")
+                        .IsUnique();
 
                     b.HasIndex("UserId")
                         .IsUnique();
@@ -573,9 +592,6 @@ namespace WITnetwork.Migrations
                     b.Property<DateTimeOffset?>("LockoutEnd")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<long?>("MessageId")
-                        .HasColumnType("bigint");
-
                     b.Property<string>("NormalizedEmail")
                         .HasMaxLength(256)
                         .HasColumnType("character varying(256)");
@@ -592,9 +608,6 @@ namespace WITnetwork.Migrations
 
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("boolean");
-
-                    b.Property<int>("ProfileId")
-                        .HasColumnType("integer");
 
                     b.Property<string>("Pseudonym")
                         .HasColumnType("text");
@@ -619,8 +632,6 @@ namespace WITnetwork.Migrations
                         .HasColumnType("character varying(256)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("MessageId");
 
                     b.HasIndex("NormalizedEmail")
                         .HasDatabaseName("EmailIndex");
@@ -682,6 +693,21 @@ namespace WITnetwork.Migrations
                     b.Navigation("Chat");
 
                     b.Navigation("Sender");
+                });
+
+            modelBuilder.Entity("MessageUserProfile", b =>
+                {
+                    b.HasOne("Message", null)
+                        .WithMany()
+                        .HasForeignKey("MessageId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("WITnetwork.Models.UserProfile", null)
+                        .WithMany()
+                        .HasForeignKey("ReadersId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<long>", b =>
@@ -780,13 +806,7 @@ namespace WITnetwork.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("WITnetwork.Models.Image", "Avatar")
-                        .WithMany()
-                        .HasForeignKey("AvatarId");
-
                     b.Navigation("Admin");
-
-                    b.Navigation("Avatar");
                 });
 
             modelBuilder.Entity("WITnetwork.Models.Post", b =>
@@ -813,30 +833,29 @@ namespace WITnetwork.Migrations
 
             modelBuilder.Entity("WITnetwork.Models.Profile", b =>
                 {
+                    b.HasOne("WITnetwork.Models.AlbumImage", "Avatar")
+                        .WithOne("Profile")
+                        .HasForeignKey("WITnetwork.Models.Profile", "AvatarId");
+
                     b.HasOne("WITnetwork.Models.UserProfile", "User")
                         .WithOne("Profile")
                         .HasForeignKey("WITnetwork.Models.Profile", "UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("Avatar");
+
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("WITnetwork.Models.UserProfile", b =>
-                {
-                    b.HasOne("Message", null)
-                        .WithMany("Readers")
-                        .HasForeignKey("MessageId");
-                });
-
-            modelBuilder.Entity("Message", b =>
-                {
-                    b.Navigation("Readers");
                 });
 
             modelBuilder.Entity("WITnetwork.Models.Album", b =>
                 {
                     b.Navigation("Images");
+                });
+
+            modelBuilder.Entity("WITnetwork.Models.AlbumImage", b =>
+                {
+                    b.Navigation("Profile");
                 });
 
             modelBuilder.Entity("WITnetwork.Models.Chat", b =>

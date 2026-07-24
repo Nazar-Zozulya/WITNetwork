@@ -13,6 +13,8 @@ public record AlbumResponseDto (
     [property: JsonPropertyName("created_at")] DateTimeOffset CreatedAt,
     [property: JsonPropertyName("is_shown")] bool IsShown,
     [property: JsonPropertyName("is_default")] bool IsDefault,
+    [property: JsonPropertyName("isMyPhotoAlbum")] bool IsMyPhotoAlbum,
+    [property: JsonPropertyName("profileId")] int ProfileId,
     [property: JsonPropertyName("images")] ICollection<AlbumImageDto> Images
 
 );

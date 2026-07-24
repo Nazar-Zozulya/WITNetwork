@@ -93,5 +93,10 @@ public class NetworkDBContext(DbContextOptions<NetworkDBContext> options): Ident
             .HasOne(p => p.User)
             .WithOne(u => u.Profile)
             .HasForeignKey<Profile>(p => p.UserId);
+
+        builder.Entity<Profile>()
+            .HasOne(p => p.Avatar)
+            .WithOne(ai => ai.Profile)
+            .HasForeignKey<Profile>(p => p.AvatarId);
     }
 }

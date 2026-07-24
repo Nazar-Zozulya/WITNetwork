@@ -7,8 +7,15 @@ public interface IChatService
 {
     Task<ChatResponseDto> GetChat(long userId, long anotherUserId);
 
+    Task<ChatResponseDto> GetChatById(long chatId);
+
     Task<IEnumerable<ChatResponseDto>> GetIndividualChats(long userId, int page, int size );
     Task<ChatResponseDto> AddUsersToChatAsync(long chatId, long adminId, List<long> userIds);
 
     Task<IEnumerable<MessageDto>> GetMessagesFromChat(long chatId, int page, int size);
+
+    Task<IEnumerable<ChatResponseDto>> GetGroups(long userId, int page, int size);
+
+    Task<ChatResponseDto> CreateGroup(CreateGroupDto dto);
+
 }

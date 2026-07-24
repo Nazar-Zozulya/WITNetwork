@@ -268,6 +268,9 @@ namespace WITnetwork.Migrations
                     b.Property<bool>("IsDefault")
                         .HasColumnType("boolean");
 
+                    b.Property<bool>("IsMyPhotoAlbum")
+                        .HasColumnType("boolean");
+
                     b.Property<bool>("IsShown")
                         .HasColumnType("boolean");
 
@@ -335,8 +338,11 @@ namespace WITnetwork.Migrations
                     b.Property<long>("AdminId")
                         .HasColumnType("bigint");
 
-                    b.Property<long?>("AvatarId")
-                        .HasColumnType("bigint");
+                    b.Property<string>("AvatarPublicId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("AvatarUrl")
+                        .HasColumnType("text");
 
                     b.Property<bool>("IsGroup")
                         .HasColumnType("boolean");
@@ -347,8 +353,6 @@ namespace WITnetwork.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("AdminId");
-
-                    b.HasIndex("AvatarId");
 
                     b.ToTable("Chats");
                 });
@@ -476,8 +480,8 @@ namespace WITnetwork.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
-                    b.Property<string>("Avatar")
-                        .HasColumnType("text");
+                    b.Property<long?>("AvatarId")
+                        .HasColumnType("bigint");
 
                     b.Property<DateTimeOffset?>("BirthDate")
                         .HasColumnType("timestamp with time zone");
@@ -498,6 +502,9 @@ namespace WITnetwork.Migrations
                         .HasColumnType("bigint");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AvatarId")
+                        .IsUnique();
 
                     b.HasIndex("UserId")
                         .IsUnique();
@@ -799,13 +806,7 @@ namespace WITnetwork.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("WITnetwork.Models.Image", "Avatar")
-                        .WithMany()
-                        .HasForeignKey("AvatarId");
-
                     b.Navigation("Admin");
-
-                    b.Navigation("Avatar");
                 });
 
             modelBuilder.Entity("WITnetwork.Models.Post", b =>
@@ -832,11 +833,17 @@ namespace WITnetwork.Migrations
 
             modelBuilder.Entity("WITnetwork.Models.Profile", b =>
                 {
+                    b.HasOne("WITnetwork.Models.AlbumImage", "Avatar")
+                        .WithOne("Profile")
+                        .HasForeignKey("WITnetwork.Models.Profile", "AvatarId");
+
                     b.HasOne("WITnetwork.Models.UserProfile", "User")
                         .WithOne("Profile")
                         .HasForeignKey("WITnetwork.Models.Profile", "UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Avatar");
 
                     b.Navigation("User");
                 });
@@ -844,6 +851,11 @@ namespace WITnetwork.Migrations
             modelBuilder.Entity("WITnetwork.Models.Album", b =>
                 {
                     b.Navigation("Images");
+                });
+
+            modelBuilder.Entity("WITnetwork.Models.AlbumImage", b =>
+                {
+                    b.Navigation("Profile");
                 });
 
             modelBuilder.Entity("WITnetwork.Models.Chat", b =>
