@@ -16,6 +16,8 @@ public class SettingsService(IMapper mapper, NetworkDBContext context, IPhotoSer
             
             var user = await context.Users
                 .Include(u => u.Profile)
+                    .ThenInclude(p => p.Albums.Where(a => a.IsMyPhotoAlbum))
+                        .ThenInclude(a => a.Images)
                 .FirstOrDefaultAsync(u => u.Id == id);
 
             if (user == null)

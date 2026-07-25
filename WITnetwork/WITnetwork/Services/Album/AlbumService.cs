@@ -91,6 +91,19 @@ public class AlbumService(NetworkDBContext context, IMapper mapper, IPhotoServic
         try
         {
             var album = await context.Albums
+                .Include(a => a.Images)
+                .FirstOrDefaultAsync(a => a.Id == id)
+                ?? throw new Exception("album not found");
+
+            foreach (var image in album.Images)
+            {
+                var deletingCloudImage = await photoService.DeletePhotoAsync(image.PublicId.ToString()) ?? throw new Exception("error deleting cloud image");
+                var deletingDBImage = await context.AlbumImages
+                    .Where(a => a.Id == image.Id)
+                    .ExecuteDeleteAsync();
+            }
+
+            var deletingAlbum = await context.Albums
                 .Where(a => a.Id == id)
                 .ExecuteDeleteAsync();
             

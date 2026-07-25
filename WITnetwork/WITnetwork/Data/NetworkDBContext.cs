@@ -97,6 +97,7 @@ public class NetworkDBContext(DbContextOptions<NetworkDBContext> options): Ident
         builder.Entity<Profile>()
             .HasOne(p => p.Avatar)
             .WithOne(ai => ai.Profile)
-            .HasForeignKey<Profile>(p => p.AvatarId);
+            .HasForeignKey<Profile>(p => p.AvatarId)
+            .OnDelete(DeleteBehavior.SetNull);
     }
 }

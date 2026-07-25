@@ -126,4 +126,22 @@ public class AlbumController(IAlbumService albumService) : ControllerBase
             return BadRequest(new { status = "error", message = ex.Message });
         }
     }
+
+    [HttpGet("{id}")]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetAllAlbumsByUserId(
+        long id,
+        [FromQuery] int page,
+        [FromQuery] int size)
+    {
+        try
+        {
+            var result = await albumService.GetAllAlbumsAsync(id, page, size);
+            return Ok(new { status = "success", data = result });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { status = "error", message = ex.Message });
+        }
+    }
 }

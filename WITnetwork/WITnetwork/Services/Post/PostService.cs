@@ -17,6 +17,8 @@ public class PostService(NetworkDBContext context, IMapper mapper, IPhotoService
         {
             var posts = await context.Posts
                 .Include(p => p.Author)
+                    .ThenInclude(u => u.Profile)
+                        .ThenInclude(p => p.Avatar)
                 .Include(p => p.Images)
                 .Include(p => p.Tags)
                 .Skip((page - 1) * size)
@@ -140,6 +142,8 @@ public class PostService(NetworkDBContext context, IMapper mapper, IPhotoService
         {
             var posts = await context.Posts
                 .Include(p => p.Author)
+                    .ThenInclude(u => u.Profile)
+                        .ThenInclude(p => p.Avatar)
                 .Include(p => p.Images)
                 .Include(p => p.Tags)
                 .Where(p => p.AuthorId == userId)
