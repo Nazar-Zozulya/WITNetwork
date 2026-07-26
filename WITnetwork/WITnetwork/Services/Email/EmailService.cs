@@ -57,7 +57,7 @@ public class EmailService : IEmailService
 
 			await client.ConnectAsync(
 				"smtp.gmail.com",
-				587,
+				443,
 				MailKit.Security.SecureSocketOptions.StartTls
 			);
 
