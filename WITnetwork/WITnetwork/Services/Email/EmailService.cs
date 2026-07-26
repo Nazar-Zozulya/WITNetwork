@@ -1,74 +1,72 @@
-
-
+using System.Net.Http.Headers;
+using System.Text;
+using System.Text.Json;
 using WITnetwork.Dtos;
-using MailKit.Net.Smtp;
-using MimeKit;
 using Microsoft.Extensions.Options;
 
 namespace WITnetwork.Services;
 
 public class EmailService : IEmailService
 {
-
-
     private readonly EmailSettings _settings;
+    private readonly HttpClient _httpClient;
 
-    public EmailService(IOptions<EmailSettings> options)
+    public EmailService(
+        IOptions<EmailSettings> options,
+        HttpClient httpClient
+    )
     {
         _settings = options.Value;
+        _httpClient = httpClient;
     }
 
     public async Task<bool> SendVerificationEmailAsync(SendVerificationEmailDto dto)
     {
         try
         {
-            Console.WriteLine("EMAIL: создание сообщения");
-
-            var message = new MimeMessage();
-
-            message.From.Add(
-                new MailboxAddress("Имя Отправителя", _settings.EmailUser)
-            );
-
-            message.To.Add(
-                new MailboxAddress("Имя Получателя", dto.Email)
-            );
-
-            message.Subject = "Верифікація пошти";
-
-            message.Body = new TextPart("plain")
+            var request = new
             {
-                Text = $"Ваш код подтверждения: {dto.VerificationCode}"
+                from = _settings.EmailUser,
+                to = new[] { dto.Email },
+                subject = "Верифікація пошти",
+                html = $"Ваш код підтвердження: {dto.VerificationCode}"
             };
 
+            var json = JsonSerializer.Serialize(request);
 
-            Console.WriteLine("EMAIL: подключение SMTP");
-
-            using var client = new SmtpClient();
-
-            await client.ConnectAsync(
-                "smtp.gmail.com",
-                587,
-                MailKit.Security.SecureSocketOptions.StartTls
+            var message = new HttpRequestMessage(
+                HttpMethod.Post,
+                "https://api.resend.com/emails"
             );
 
-            Console.WriteLine("EMAIL: SMTP подключен");
+            message.Headers.Authorization =
+                new AuthenticationHeaderValue(
+                    "Bearer",
+                    _settings.ApiEmailKey
+                );
 
-
-            await client.AuthenticateAsync(
-                _settings.EmailUser,
-                _settings.EmailPass
+            message.Content = new StringContent(
+                json,
+                Encoding.UTF8,
+                "application/json"
             );
 
-            Console.WriteLine("EMAIL: авторизация успешна");
+            var response = await _httpClient.SendAsync(message);
 
+            if (!response.IsSuccessStatusCode)
+            {
+                Console.WriteLine(
+                    $"Resend error: {response.StatusCode}"
+                );
 
-            await client.SendAsync(message);
+                Console.WriteLine(
+                    await response.Content.ReadAsStringAsync()
+                );
 
-            Console.WriteLine("EMAIL: письмо отправлено");
+                return false;
+            }
 
-
-            await client.DisconnectAsync(true);
+            Console.WriteLine("EMAIL: письмо отправлено через Resend");
 
             return true;
         }
@@ -76,7 +74,6 @@ public class EmailService : IEmailService
         {
             Console.WriteLine("EMAIL ERROR:");
             Console.WriteLine(ex);
-
             return false;
         }
     }
