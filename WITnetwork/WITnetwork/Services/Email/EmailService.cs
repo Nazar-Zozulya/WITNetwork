@@ -1,91 +1,96 @@
+using System.Text;
+using Newtonsoft.Json;
 using WITnetwork.Dtos;
-using MailKit.Net.Smtp;
-using MimeKit;
-using Microsoft.Extensions.Options;
 
 namespace WITnetwork.Services;
 
 public class EmailService : IEmailService
 {
+	private readonly HttpClient _httpClient;
 	private readonly EmailSettings _settings;
 
-	public EmailService(IOptions<EmailSettings> options)
+
+	public EmailService(
+		HttpClient httpClient,
+		IConfiguration configuration
+	)
 	{
-		_settings = options.Value;
+		_httpClient = httpClient;
+
+		_settings = new EmailSettings
+		{
+			ApiEmailKey = configuration["EmailSettings:ApiKey"]!,
+			EmailUser = configuration["EmailSettings:EmailUser"]!
+		};
 	}
 
-	public async Task<bool> SendVerificationEmailAsync(SendVerificationEmailDto dto)
+
+	public async Task<bool> SendVerificationEmailAsync(
+		SendVerificationEmailDto dto
+	)
 	{
 		try
 		{
-			Console.WriteLine("EMAIL: создание сообщения");
-
-			var message = new MimeMessage();
-
-			message.From.Add(
-				new MailboxAddress(
-					"WITnetwork",
-					_settings.EmailUser
-				)
-			);
-
-			message.To.Add(
-				new MailboxAddress(
-					"",
-					dto.Email
-				)
-			);
-
-			message.Subject = "Верифікація пошти";
-
-			message.Body = new TextPart("plain")
+			var body = new
 			{
-				Text =
-					$"""
-					Ваш код підтвердження WITnetwork:
+				sender = new
+				{
+					name = "WITnetwork",
+					email = _settings.EmailUser
+				},
 
-					{dto.VerificationCode}
+				to = new[]
+				{
+					new
+					{
+						email = dto.Email
+					}
+				},
 
-					Не передавайте цей код нікому.
-					"""
+				subject = "Верифікація пошти",
+
+				htmlContent =
+					$"<h2>Ваш код підтвердження: {dto.VerificationCode}</h2>"
 			};
 
 
-			Console.WriteLine("EMAIL: подключение SMTP");
-
-			using var client = new SmtpClient();
-
-			await client.ConnectAsync(
-				"smtp.gmail.com",
-				443,
-				MailKit.Security.SecureSocketOptions.StartTls
+			var request = new HttpRequestMessage(
+				HttpMethod.Post,
+				"https://api.brevo.com/v3/smtp/email"
 			);
 
-			Console.WriteLine("EMAIL: SMTP подключен");
 
-
-			await client.AuthenticateAsync(
-				_settings.EmailUser,
-				_settings.EmailPass
+			request.Headers.Add(
+				"api-key",
+				_settings.ApiEmailKey
 			);
 
-			Console.WriteLine("EMAIL: авторизация успешна");
+
+			request.Content = new StringContent(
+				JsonConvert.SerializeObject(body),
+				Encoding.UTF8,
+				"application/json"
+			);
 
 
-			await client.SendAsync(message);
-
-			Console.WriteLine("EMAIL: письмо отправлено");
+			var response = await _httpClient.SendAsync(request);
 
 
-			await client.DisconnectAsync(true);
+			if (!response.IsSuccessStatusCode)
+			{
+				Console.WriteLine(
+					await response.Content.ReadAsStringAsync()
+				);
+
+				return false;
+			}
+
 
 			return true;
 		}
-		catch (Exception ex)
+		catch(Exception ex)
 		{
-			Console.WriteLine("EMAIL ERROR:");
 			Console.WriteLine(ex);
-
 			return false;
 		}
 	}
