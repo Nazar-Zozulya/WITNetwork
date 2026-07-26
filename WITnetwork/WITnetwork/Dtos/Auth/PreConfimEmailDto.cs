@@ -1,6 +1,8 @@
+using System.Text.Json.Serialization;
+
 namespace WITnetwork.Dtos;
 
 
 public record PreConfirmEmailDto (
-    string Email
+    [property: JsonPropertyName("email")]string Email
 );
