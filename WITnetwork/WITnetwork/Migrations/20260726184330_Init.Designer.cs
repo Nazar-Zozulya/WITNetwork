@@ -12,8 +12,8 @@ using WITnetwork.Data;
 namespace WITnetwork.Migrations
 {
     [DbContext(typeof(NetworkDBContext))]
-    [Migration("20260724170305_fix4")]
-    partial class fix4
+    [Migration("20260726184330_Init")]
+    partial class Init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -838,7 +838,8 @@ namespace WITnetwork.Migrations
                 {
                     b.HasOne("WITnetwork.Models.AlbumImage", "Avatar")
                         .WithOne("Profile")
-                        .HasForeignKey("WITnetwork.Models.Profile", "AvatarId");
+                        .HasForeignKey("WITnetwork.Models.Profile", "AvatarId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("WITnetwork.Models.UserProfile", "User")
                         .WithOne("Profile")

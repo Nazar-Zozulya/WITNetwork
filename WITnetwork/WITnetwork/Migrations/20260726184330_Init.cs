@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace WITnetwork.Migrations
 {
     /// <inheritdoc />
-    public partial class fix : Migration
+    public partial class Init : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -440,7 +440,7 @@ namespace WITnetwork.Migrations
                     Signature = table.Column<string>(type: "text", nullable: true),
                     BirthDate = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
                     UserId = table.Column<long>(type: "bigint", nullable: false),
-                    AvatarId = table.Column<long>(type: "bigint", nullable: false),
+                    AvatarId = table.Column<long>(type: "bigint", nullable: true),
                     Pseudonym = table.Column<string>(type: "text", nullable: true),
                     IsImageSignature = table.Column<bool>(type: "boolean", nullable: false),
                     IsTextSignature = table.Column<bool>(type: "boolean", nullable: false)
@@ -453,7 +453,7 @@ namespace WITnetwork.Migrations
                         column: x => x.AvatarId,
                         principalTable: "AlbumImages",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.SetNull);
                     table.ForeignKey(
                         name: "FK_Profiles_AspNetUsers_UserId",
                         column: x => x.UserId,
@@ -474,7 +474,8 @@ namespace WITnetwork.Migrations
                     CreatedAT = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     IsShown = table.Column<bool>(type: "boolean", nullable: false),
                     IsDefault = table.Column<bool>(type: "boolean", nullable: false),
-                    ProfileId = table.Column<long>(type: "bigint", nullable: false)
+                    ProfileId = table.Column<long>(type: "bigint", nullable: false),
+                    IsMyPhotoAlbum = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {

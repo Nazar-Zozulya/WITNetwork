@@ -106,6 +106,9 @@ public class AuthService(NetworkDBContext context, IMapper mapper, UserManager<U
 
     public async Task<string> PreConfirmEmail(PreConfirmEmailDto dto)
     {
+        try
+        {
+            
         // шукаємо користувача по email
         var findUser = await context.Users.FirstOrDefaultAsync(user => user.Email == dto.Email);
 
@@ -153,6 +156,11 @@ public class AuthService(NetworkDBContext context, IMapper mapper, UserManager<U
 
 
         return "лист відправлено";
+        }
+        catch (Exception ex)
+        {
+            throw new Exception(ex.ToString());
+        }
     }
 
     public async Task<string> ConfirmEmail(ConfirmEmailDto dto)
