@@ -20,26 +20,63 @@ public class EmailService : IEmailService
 
     public async Task<bool> SendVerificationEmailAsync(SendVerificationEmailDto dto)
     {
-        
         try
         {
+            Console.WriteLine("EMAIL: создание сообщения");
+
             var message = new MimeMessage();
-            message.From.Add(new MailboxAddress("Имя Отправителя", _settings.EmailUser));
-            message.To.Add(new MailboxAddress("Имя Получателя", dto.Email));
+
+            message.From.Add(
+                new MailboxAddress("Имя Отправителя", _settings.EmailUser)
+            );
+
+            message.To.Add(
+                new MailboxAddress("Имя Получателя", dto.Email)
+            );
+
             message.Subject = "Верифікація пошти";
-            message.Body = new TextPart("plain") { Text = $"Ваш код подтверждения: {dto.VerificationCode}" };
+
+            message.Body = new TextPart("plain")
+            {
+                Text = $"Ваш код подтверждения: {dto.VerificationCode}"
+            };
+
+
+            Console.WriteLine("EMAIL: подключение SMTP");
 
             using var client = new SmtpClient();
-            client.Connect("smtp.gmail.com", 587, MailKit.Security.SecureSocketOptions.Auto);
-            client.Authenticate(_settings.EmailUser, _settings.EmailPass);
-            client.Send(message);
-            client.Disconnect(true);
+
+            await client.ConnectAsync(
+                "smtp.gmail.com",
+                587,
+                MailKit.Security.SecureSocketOptions.StartTls
+            );
+
+            Console.WriteLine("EMAIL: SMTP подключен");
+
+
+            await client.AuthenticateAsync(
+                _settings.EmailUser,
+                _settings.EmailPass
+            );
+
+            Console.WriteLine("EMAIL: авторизация успешна");
+
+
+            await client.SendAsync(message);
+
+            Console.WriteLine("EMAIL: письмо отправлено");
+
+
+            await client.DisconnectAsync(true);
 
             return true;
-        } catch (Exception ex)
+        }
+        catch (Exception ex)
         {
-            // Обработка ошибки отправки письма
-            Console.WriteLine($"Ошибка отправки письма: {ex.Message}");
+            Console.WriteLine("EMAIL ERROR:");
+            Console.WriteLine(ex);
+
             return false;
         }
     }
