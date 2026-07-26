@@ -1,5 +1,7 @@
+using System.Net.Http.Headers;
 using System.Text;
-using Newtonsoft.Json;
+using System.Text.Json;
+using Microsoft.Extensions.Options;
 using WITnetwork.Dtos;
 
 namespace WITnetwork.Services;
@@ -9,25 +11,17 @@ public class EmailService : IEmailService
 	private readonly HttpClient _httpClient;
 	private readonly EmailSettings _settings;
 
-
 	public EmailService(
 		HttpClient httpClient,
-		IConfiguration configuration
+		IOptions<EmailSettings> options
 	)
 	{
 		_httpClient = httpClient;
-
-		_settings = new EmailSettings
-		{
-			ApiEmailKey = configuration["EmailSettings:ApiKey"]!,
-			EmailUser = configuration["EmailSettings:EmailUser"]!
-		};
+		_settings = options.Value;
 	}
 
 
-	public async Task<bool> SendVerificationEmailAsync(
-		SendVerificationEmailDto dto
-	)
+	public async Task<bool> SendVerificationEmailAsync(SendVerificationEmailDto dto)
 	{
 		try
 		{
@@ -38,7 +32,6 @@ public class EmailService : IEmailService
 					name = "WITnetwork",
 					email = _settings.EmailUser
 				},
-
 				to = new[]
 				{
 					new
@@ -46,13 +39,12 @@ public class EmailService : IEmailService
 						email = dto.Email
 					}
 				},
-
 				subject = "Верифікація пошти",
-
-				htmlContent =
-					$"<h2>Ваш код підтвердження: {dto.VerificationCode}</h2>"
+				htmlContent = $"<h2>Ваш код підтвердження: {dto.VerificationCode}</h2>"
 			};
 
+
+			var json = JsonSerializer.Serialize(body);
 
 			var request = new HttpRequestMessage(
 				HttpMethod.Post,
@@ -67,7 +59,7 @@ public class EmailService : IEmailService
 
 
 			request.Content = new StringContent(
-				JsonConvert.SerializeObject(body),
+				json,
 				Encoding.UTF8,
 				"application/json"
 			);
@@ -78,9 +70,9 @@ public class EmailService : IEmailService
 
 			if (!response.IsSuccessStatusCode)
 			{
-				Console.WriteLine(
-					await response.Content.ReadAsStringAsync()
-				);
+				var error = await response.Content.ReadAsStringAsync();
+
+				Console.WriteLine(error);
 
 				return false;
 			}
