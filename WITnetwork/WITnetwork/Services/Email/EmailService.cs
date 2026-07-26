@@ -1,80 +1,92 @@
-using System.Net.Http.Headers;
-using System.Text;
-using System.Text.Json;
 using WITnetwork.Dtos;
+using MailKit.Net.Smtp;
+using MimeKit;
 using Microsoft.Extensions.Options;
 
 namespace WITnetwork.Services;
 
 public class EmailService : IEmailService
 {
-    private readonly EmailSettings _settings;
-    private readonly HttpClient _httpClient;
+	private readonly EmailSettings _settings;
 
-    public EmailService(
-        IOptions<EmailSettings> options,
-        HttpClient httpClient
-    )
-    {
-        _settings = options.Value;
-        _httpClient = httpClient;
-    }
+	public EmailService(IOptions<EmailSettings> options)
+	{
+		_settings = options.Value;
+	}
 
-    public async Task<bool> SendVerificationEmailAsync(SendVerificationEmailDto dto)
-    {
-        try
-        {
-            var request = new
-            {
-                from = _settings.EmailUser,
-                to = new[] { dto.Email },
-                subject = "Верифікація пошти",
-                html = $"Ваш код підтвердження: {dto.VerificationCode}"
-            };
+	public async Task<bool> SendVerificationEmailAsync(SendVerificationEmailDto dto)
+	{
+		try
+		{
+			Console.WriteLine("EMAIL: создание сообщения");
 
-            var json = JsonSerializer.Serialize(request);
+			var message = new MimeMessage();
 
-            var message = new HttpRequestMessage(
-                HttpMethod.Post,
-                "https://api.resend.com/emails"
-            );
+			message.From.Add(
+				new MailboxAddress(
+					"WITnetwork",
+					_settings.EmailUser
+				)
+			);
 
-            message.Headers.Authorization =
-                new AuthenticationHeaderValue(
-                    "Bearer",
-                    _settings.ApiEmailKey
-                );
+			message.To.Add(
+				new MailboxAddress(
+					"",
+					dto.Email
+				)
+			);
 
-            message.Content = new StringContent(
-                json,
-                Encoding.UTF8,
-                "application/json"
-            );
+			message.Subject = "Верифікація пошти";
 
-            var response = await _httpClient.SendAsync(message);
+			message.Body = new TextPart("plain")
+			{
+				Text =
+					$"""
+					Ваш код підтвердження WITnetwork:
 
-            if (!response.IsSuccessStatusCode)
-            {
-                Console.WriteLine(
-                    $"Resend error: {response.StatusCode}"
-                );
+					{dto.VerificationCode}
 
-                Console.WriteLine(
-                    await response.Content.ReadAsStringAsync()
-                );
+					Не передавайте цей код нікому.
+					"""
+			};
 
-                return false;
-            }
 
-            Console.WriteLine("EMAIL: письмо отправлено через Resend");
+			Console.WriteLine("EMAIL: подключение SMTP");
 
-            return true;
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine("EMAIL ERROR:");
-            Console.WriteLine(ex);
-            return false;
-        }
-    }
+			using var client = new SmtpClient();
+
+			await client.ConnectAsync(
+				"smtp.gmail.com",
+				587,
+				MailKit.Security.SecureSocketOptions.StartTls
+			);
+
+			Console.WriteLine("EMAIL: SMTP подключен");
+
+
+			await client.AuthenticateAsync(
+				_settings.EmailUser,
+				_settings.EmailPass
+			);
+
+			Console.WriteLine("EMAIL: авторизация успешна");
+
+
+			await client.SendAsync(message);
+
+			Console.WriteLine("EMAIL: письмо отправлено");
+
+
+			await client.DisconnectAsync(true);
+
+			return true;
+		}
+		catch (Exception ex)
+		{
+			Console.WriteLine("EMAIL ERROR:");
+			Console.WriteLine(ex);
+
+			return false;
+		}
+	}
 }
