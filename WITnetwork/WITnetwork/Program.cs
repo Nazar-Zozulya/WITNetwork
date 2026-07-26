@@ -155,4 +155,10 @@ app.MapControllers();
 app.MapHub<ChatHub>("/chat");
 app.MapHub<GlobalHub>("/global");
 
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<NetworkDBContext>();
+    db.Database.Migrate();
+}
+
 app.Run();
