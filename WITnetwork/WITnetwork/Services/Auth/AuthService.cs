@@ -108,58 +108,64 @@ public class AuthService(NetworkDBContext context, IMapper mapper, UserManager<U
     {
         try
         {
-            
-        // шукаємо користувача по email
-        var findUser = await context.Users.FirstOrDefaultAsync(user => user.Email == dto.Email);
+            Console.WriteLine("1. Метод PreConfirmEmail вызван");
 
-        // перевіряємо чи є такий юзер
-        if (findUser != null)
-        {
-            throw new Exception("User exists");
-        } 
+            Console.WriteLine("2. Поиск пользователя...");
+            var findUser = await context.Users.FirstOrDefaultAsync(user => user.Email == dto.Email);
+            Console.WriteLine("3. Поиск пользователя завершен");
 
-        // створюємо код підтвердження
-        string code = new Random().Next(100000, 999999).ToString();
+            if (findUser != null)
+            {
+                Console.WriteLine("4. Пользователь уже существует");
+                throw new Exception("User exists");
+            }
 
+            Console.WriteLine("5. Генерация кода");
+            string code = new Random().Next(100000, 999999).ToString();
 
-        // відправляємо емейл
+            Console.WriteLine($"6. Код сгенерирован: {code}");
 
-        var emailSent = await emailService.SendVerificationEmailAsync(new SendVerificationEmailDto
-        {
-            Email = dto.Email,
-            VerificationCode = code
-        });
+            Console.WriteLine("7. Отправка письма...");
+            var emailSent = await emailService.SendVerificationEmailAsync(new SendVerificationEmailDto
+            {
+                Email = dto.Email,
+                VerificationCode = code
+            });
+            Console.WriteLine($"8. SendVerificationEmailAsync завершился. Результат: {emailSent}");
 
-        if (!emailSent)
-        {
-            throw new Exception("Failed to send email");
-        }
+            if (!emailSent)
+            {
+                Console.WriteLine("9. Отправка письма не удалась");
+                throw new Exception("Failed to send email");
+            }
 
+            Console.WriteLine("10. Создание объекта EmailVerification");
 
+            var emailVerification = new EmailVerification
+            {
+                NewEmail = dto.Email,
+                Code = code,
+            };
 
+            Console.WriteLine("11. Добавление в DbContext");
 
+            await context.EmailVerifications.AddAsync(emailVerification);
 
-        // якщо емейл відправився то зберігаемо код в базу даних
+            Console.WriteLine("12. Вызов SaveChangesAsync");
 
-        // створюємо обьект коду підтвердження
-        var emailVerification = new EmailVerification
-        {
-            NewEmail = dto.Email,
-            Code = code,
-        };
+            await context.SaveChangesAsync();
 
-        // добавляемо його в базу даних
-        await context.EmailVerifications.AddAsync(emailVerification);
+            Console.WriteLine("13. SaveChangesAsync завершился");
 
-        // зберігаемо зміни в базу даних
-        await context.SaveChangesAsync();
+            Console.WriteLine("14. Метод успешно завершен");
 
-
-        return "лист відправлено";
+            return "лист відправлено";
         }
         catch (Exception ex)
         {
-            throw new Exception(ex.ToString());
+            Console.WriteLine("ОШИБКА:");
+            Console.WriteLine(ex);
+            throw;
         }
     }
 
