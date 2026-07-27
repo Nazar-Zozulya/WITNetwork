@@ -12,7 +12,7 @@
 
 ## About
 
-WITnetwork Backend is the server-side part of the WITnetwork social networking platform. It provides REST APIs, real-time communication, authentication, file management, and business logic for the frontend application.
+WITnetwork Backend is the server-side part of the WITnetwork social networking platform. The project provides a REST API, authentication, database management, business logic, file uploads, and real-time communication with the frontend application.
 
 ## Features
 
@@ -35,6 +35,7 @@ WITnetwork Backend is the server-side part of the WITnetwork social networking p
 - ASP.NET Core
 - Entity Framework Core
 - PostgreSQL
+- Swagger
 - SignalR
 - ASP.NET Identity
 - AutoMapper
@@ -51,77 +52,41 @@ WITnetwork Backend is the server-side part of the WITnetwork social networking p
 
 ```text
 Controllers/
+Data/
 Dtos/
-Extensions/
 Helpers/
 Hubs/
-Interfaces/
 Mappings/
-Middleware/
 Models/
-Repositories/
 Services/
-Settings/
 ```
 
 ## Installation
 
 ```bash
-git clone <repository>
+git clone https://github.com/Nazar-Zozulya/WITNetwork.git
 
-cd backend
+cd WITnetwork/WITnetwork
 
 dotnet restore
 ```
 
 ## Configuration
 
-Copy
-
-```text
-appsettings.Development.json
-```
-
-or configure using environment variables.
-
-Example:
-
-```json
-{
-    "ConnectionStrings": {
-        "DefaultConnection": ""
-    },
-
-    "Jwt": {
-        "Key": "",
-        "Issuer": "",
-        "Audience": ""
-    },
-
-    "CloudinarySettings": {
-        "CloudName": "",
-        "ApiKey": "",
-        "ApiSecret": ""
-    },
-
-    "Brevo": {
-        "ApiKey": ""
-    }
-}
-```
+Configure the `appsettings.Development.json` file or use environment variables.
 
 ## Database
+
+Create a new migration
+
+```bash
+dotnet ef migrations add MigrationName
+```
 
 Apply migrations
 
 ```bash
 dotnet ef database update
-```
-
-Create new migration
-
-```bash
-dotnet ef migrations add MigrationName
 ```
 
 ## Run
@@ -130,24 +95,34 @@ dotnet ef migrations add MigrationName
 dotnet run
 ```
 
-or
-
-```bash
-dotnet watch
-```
-
 ## API
 
-REST API
+### REST API
 
 ```
-https://localhost:5001/api
+https://localhost:5028/api
 ```
 
-SignalR Hub
+Main endpoints:
+
+- `/api/user`
+- `/api/post`
+- `/api/chat`
+
+### Swagger UI
 
 ```
-https://localhost:5001/chatHub
+https://localhost:5028/swagger
+```
+
+### SignalR Hubs
+
+```
+https://localhost:5028/chat
+```
+
+```
+https://localhost:5028/global
 ```
 
 ## Requirements
@@ -192,6 +167,7 @@ WITnetwork Backend — це серверна частина соціальної
 - ASP.NET Core
 - Entity Framework Core
 - PostgreSQL
+- Swagger
 - SignalR
 - ASP.NET Identity
 - AutoMapper
@@ -229,13 +205,7 @@ dotnet restore
 
 ## Налаштування
 
-Заповніть файл
-
-```text
-appsettings.Development.json
-```
-
-або використайте змінні середовища.
+Заповніть файл `appsettings.Development.json` або використайте змінні середовища.
 
 ## База даних
 
@@ -251,7 +221,6 @@ dotnet ef migrations add MigrationName
 dotnet ef database update
 ```
 
-
 ## Запуск
 
 ```bash
@@ -260,13 +229,25 @@ dotnet run
 
 ## API
 
+### REST API
+
+```
+https://localhost:5028/api
+```
+
+Основні маршрути:
+
+- `/api/user`
+- `/api/post`
+- `/api/chat`
+
 ### Swagger UI
 
 ```
 https://localhost:5028/swagger
 ```
 
-SignalR Hubs
+### SignalR Hubs
 
 ```
 https://localhost:5028/chat
