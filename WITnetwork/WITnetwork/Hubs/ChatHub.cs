@@ -18,7 +18,6 @@ public class ChatHub(NetworkDBContext context, IMapper mapper, IChatService chat
     public async Task EnterChat(long chatId)
     {
         await Groups.AddToGroupAsync(Context.ConnectionId, $"chat_{chatId}");
-        System.Console.WriteLine(123123);
     }
 
     [HubMethodName("chat:leave")]
@@ -61,6 +60,8 @@ public class ChatHub(NetworkDBContext context, IMapper mapper, IChatService chat
         if (senderId == null) return;
 
         var sender = await context.Users
+            .Include(u => u.Profile)
+                .ThenInclude(p => p.Avatar)
             .FirstOrDefaultAsync(x => x.Id == long.Parse(senderId));
 
         if (sender == null) return;
@@ -79,17 +80,17 @@ public class ChatHub(NetworkDBContext context, IMapper mapper, IChatService chat
 
         var messageDto = mapper.Map<MessageDto>(NewMessage.Entity);
 
-        await Clients.Group($"chat_{dto.ChatId}").SendAsync("message:new", messageDto);
+        // await Clients.Group($"chat_{dto.ChatId}").SendAsync("message:new", messageDto);
 
         var currentChat = await context.Chats
             .Include(c => c.Users)
+                .ThenInclude(u => u.Profile)
+                    .ThenInclude(p => p.Avatar)
             .FirstOrDefaultAsync(c => c.Id == dto.ChatId);
-
-        // if (currentChat == null) return;
 
         foreach (var user in currentChat.Users)
         {
-            if (user.Id != dto.SenderId) 
+            // if (user.Id != dto.SenderId) 
             await globalHub.Clients.Group($"user_{user.Id}")
                 .SendAsync("global-message:new", messageDto);
         }

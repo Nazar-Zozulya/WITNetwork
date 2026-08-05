@@ -14,6 +14,8 @@ public class ChatService(NetworkDBContext context, IMapper mapper, IPhotoService
         var findChat = await context.Chats
             .Include(c => c.Admin)
             .Include(c => c.Users)
+                .ThenInclude(u => u.Profile)
+                    .ThenInclude(p => p.Avatar)
             // .Include(c => c.Messages)
                 // .ThenInclude(m => m.Sender)
             .Include(c => c.Messages)
@@ -65,6 +67,8 @@ public class ChatService(NetworkDBContext context, IMapper mapper, IPhotoService
         var newChat = await context.Chats
             .Include(c => c.Admin)
             .Include(c => c.Users)
+                .ThenInclude(u => u.Profile)
+                    .ThenInclude(p => p.Avatar)
             .Include(c => c.Messages)
                 .ThenInclude(m => m.Sender)
             .Include(c => c.Messages)
@@ -95,7 +99,16 @@ public class ChatService(NetworkDBContext context, IMapper mapper, IPhotoService
     {
         try
         {
-            var chat = await context.Chats.FirstOrDefaultAsync(c => c.Id == chatId) ?? throw new Exception("chat not found");
+            var chat = await context.Chats
+                .Include(c => c.Admin)
+                .Include(c => c.Users)
+                    .ThenInclude(u => u.Profile)
+                        .ThenInclude(p => p.Avatar)
+                // .Include(c => c.Messages)
+                    // .ThenInclude(m => m.Sender)
+                .Include(c => c.Messages)
+                    .ThenInclude(m => m.Readers)
+                .FirstOrDefaultAsync(c => c.Id == chatId) ?? throw new Exception("chat not found");
 
             var mappedChat = mapper.Map<ChatResponseDto>(chat);
 
@@ -115,6 +128,8 @@ public class ChatService(NetworkDBContext context, IMapper mapper, IPhotoService
                 c.Users.Any(u => u.Id == userId)
             )
             .Include(c => c.Users)
+                .ThenInclude(u => u.Profile)
+                    .ThenInclude(p => p.Avatar)
             .Include(c => c.Messages
                 .OrderByDescending(m => m.CreatedAt)
                 .Take(1))
@@ -132,6 +147,8 @@ public class ChatService(NetworkDBContext context, IMapper mapper, IPhotoService
     {
         var chat = await context.Chats
             .Include(c => c.Users)
+                .ThenInclude(u => u.Profile)
+                    .ThenInclude(p => p.Avatar)
             .Include(c => c.Messages)
             .FirstOrDefaultAsync(c => c.Id == chatId && c.AdminId == adminId);
 
@@ -168,6 +185,14 @@ public class ChatService(NetworkDBContext context, IMapper mapper, IPhotoService
                     .OrderByDescending(m => m.CreatedAt)
                     .Skip((page - 1) * size)
                     .Take(size))
+                    .ThenInclude(m => m.Sender)
+                        .ThenInclude(u => u.Profile)
+                            .ThenInclude(p => p.Avatar)
+
+                .Include(c => c.Messages
+                    .OrderByDescending(m => m.CreatedAt)
+                    .Skip((page - 1) * size)
+                    .Take(size))
                     .ThenInclude(m => m.Readers)
                 .FirstOrDefaultAsync(c => c.Id == chatId);
             
@@ -192,6 +217,9 @@ public class ChatService(NetworkDBContext context, IMapper mapper, IPhotoService
                     c.Users.Any(u => u.Id == userId)
                 )
                 .Include(c => c.Users)
+                    .ThenInclude(u => u.Profile)
+                        .ThenInclude(p => p.Albums.Where(a => a.IsMyPhotoAlbum))
+                            .ThenInclude(a => a.Images)
                 .Include(c => c.Messages
                     .OrderByDescending(m => m.CreatedAt)
                     .Take(1))

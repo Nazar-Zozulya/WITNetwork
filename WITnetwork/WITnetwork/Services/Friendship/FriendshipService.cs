@@ -9,13 +9,17 @@ using WITnetwork.Models;
 
 public class FriendshipService(NetworkDBContext context, IMapper mapper) : IFriendshipService
 {
-    public async Task<IEnumerable<UserWithoutIncludes>> GetFriendshipsAsync(long userId, int page, int size)
+    public async Task<IEnumerable<UserResponseDto>> GetFriendshipsAsync(long userId, int page, int size)
     {   
         try
         {      
             var friendships = await context.Friendships
                 .Include(f => f.From)
+                    .ThenInclude(u => u.Profile)
+                        .ThenInclude(p => p.Avatar)
                 .Include(f => f.To)
+                    .ThenInclude(u => u.Profile)
+                        .ThenInclude(p => p.Avatar)
                 .Where(f => f.Status == true && 
                     (f.FromId == userId || f.ToId == userId))
                 .Skip((page - 1) * size)
@@ -27,14 +31,14 @@ public class FriendshipService(NetworkDBContext context, IMapper mapper) : IFrie
                 f.FromId == userId ? f.To : f.From);
             if (!friends.Any())
             {
-                return Enumerable.Empty<UserWithoutIncludes>();
+                return Enumerable.Empty<UserResponseDto>();
             }
             // if (friends.IsNullOrEmpty())
             // {
             //     throw new Exception("friends not found");   
             // }
 
-            var mappedFriends = mapper.Map<IEnumerable<UserWithoutIncludes>>(friends);
+            var mappedFriends = mapper.Map<IEnumerable<UserResponseDto>>(friends);
 
             return mappedFriends;
         }
@@ -44,12 +48,17 @@ public class FriendshipService(NetworkDBContext context, IMapper mapper) : IFrie
         }
     }
 
-    public async Task<IEnumerable<UserWithoutIncludes>> GetFriendRequestsAsync(long userId, int page, int size)
+    public async Task<IEnumerable<UserResponseDto>> GetFriendRequestsAsync(long userId, int page, int size)
     {   
         try {
             var friendships = await context.Friendships
                 .Include(f => f.From)
+                    .ThenInclude(u => u.Profile)
+                        .ThenInclude(p => p.Albums.Where(a => a.IsMyPhotoAlbum))
+                            .ThenInclude(a => a.Images)
                 .Include(f => f.To)
+                    .ThenInclude(u => u.Profile)
+                        .ThenInclude(p => p.Avatar)
                 .Where(f => f.Status == false && 
                     (f.ToId == userId))
                 .Skip((page - 1) * size)
@@ -62,10 +71,10 @@ public class FriendshipService(NetworkDBContext context, IMapper mapper) : IFrie
 
             if (friends.IsNullOrEmpty())
             {
-                return Enumerable.Empty<UserWithoutIncludes>();
+                return Enumerable.Empty<UserResponseDto>();
             }
             
-            var mappedFriends = mapper.Map<IEnumerable<UserWithoutIncludes>>(friends);
+            var mappedFriends = mapper.Map<IEnumerable<UserResponseDto>>(friends);
 
             return mappedFriends;
         }
@@ -76,7 +85,7 @@ public class FriendshipService(NetworkDBContext context, IMapper mapper) : IFrie
 
     }
 
-    public async Task<IEnumerable<UserWithoutIncludes>> GetFriendRecommendationsAsync(long userId, int page, int size)
+    public async Task<IEnumerable<UserResponseDto>> GetFriendRecommendationsAsync(long userId, int page, int size)
     {   
         try {
             // var user = await context.Users
@@ -87,13 +96,36 @@ public class FriendshipService(NetworkDBContext context, IMapper mapper) : IFrie
 
             var users = await context.Users
                 .Include(u => u.FriendshipsTo)
+                    .ThenInclude(f => f.From)
+                        .Include(u => u.Profile)
+                            .ThenInclude(p => p.Avatar)
                 .Include(u => u.FriendshipsFrom)
+                    .ThenInclude(f => f.To)
+                        .Include(u => u.Profile)
+                            .ThenInclude(p => p.Avatar)
                 .Where(u => u.Id != userId &&
                     !u.FriendshipsFrom.Any(f => f.ToId == userId) &&
                     !u.FriendshipsTo.Any(f => f.FromId == userId))
                 .Skip((page - 1) * size)
                 .Take(size)
                 .ToListAsync();
+
+        foreach (var user in users)
+        {
+            Console.WriteLine(user.UserName);
+
+            foreach (var friendship in user.FriendshipsFrom)
+            {
+                Console.WriteLine(friendship.To?.Profile != null);
+                Console.WriteLine(friendship.To?.Profile?.Albums.Count);
+            }
+
+            foreach (var friendship in user.FriendshipsTo)
+            {
+                Console.WriteLine(friendship.From?.Profile != null);
+                Console.WriteLine(friendship.From?.Profile?.Albums.Count);
+            }
+        }
 
             // var friendships = await context.Friendships
             //     .Include(f => f.From)
@@ -107,10 +139,10 @@ public class FriendshipService(NetworkDBContext context, IMapper mapper) : IFrie
 
             if (users.IsNullOrEmpty())
             {
-                return Enumerable.Empty<UserWithoutIncludes>();
+                return Enumerable.Empty<UserResponseDto>();
             }
 
-            var mappedUsers = mapper.Map<IEnumerable<UserWithoutIncludes>>(users);
+            var mappedUsers = mapper.Map<IEnumerable<UserResponseDto>>(users);
 
             return mappedUsers;
         }

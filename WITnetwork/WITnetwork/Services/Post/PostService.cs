@@ -21,6 +21,7 @@ public class PostService(NetworkDBContext context, IMapper mapper, IPhotoService
                         .ThenInclude(p => p.Avatar)
                 .Include(p => p.Images)
                 .Include(p => p.Tags)
+                .OrderByDescending(p => p.CreatedAt)
                 .Skip((page - 1) * size)
                 .Take(size)
                 .ToListAsync();
@@ -94,6 +95,8 @@ public class PostService(NetworkDBContext context, IMapper mapper, IPhotoService
                 .Include(p => p.Images)
                 .Include(p => p.Tags)
                 .Include(p => p.Author)
+                    .ThenInclude(u => u.Profile)
+                        .ThenInclude(p => p.Avatar)
                 .FirstAsync(p => p.Id == post.Id);
 
             return mapper.Map<PostResponseDto>(post);
@@ -146,6 +149,7 @@ public class PostService(NetworkDBContext context, IMapper mapper, IPhotoService
                         .ThenInclude(p => p.Avatar)
                 .Include(p => p.Images)
                 .Include(p => p.Tags)
+                .OrderByDescending(p => p.CreatedAt)
                 .Where(p => p.AuthorId == userId)
                 .Skip((page - 1) * size)
                 .Take(size)
